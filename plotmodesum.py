@@ -7,16 +7,16 @@ columnoffset=5
 timecolumn=0
 nummodes=6
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n32/psir_l.asc", skiprows=1)
-t0=20.
+t0=600.
 interporder=4
 interpkind='cubic'
+tstoredlist=[]
+lstoredlist=[]
 
 for modenum in range(1,31):
     tnearest=0.0
     indexnearest=0
     lbest=0
-    tstoredlist=[]
-    lstoredlist=[]
 
     tstored = list(np.zeros(interporder))
     lstored=list(np.zeros(interporder))
@@ -33,7 +33,7 @@ for modenum in range(1,31):
         lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
     func=interp1d(tstored,lstored,kind=interpkind)
     lbest=func(t0)
-    lstoredlist.append[lbest]
+    lstoredlist.append(lbest)
     
             
 ls=np.array(range(1,31))
