@@ -6,8 +6,8 @@ from scipy.interpolate import interp1d
 columnoffset=5
 timecolumn=0
 nummodes=6
-datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
-t0=100.
+datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n32/psir_l.asc", skiprows=1)
+t0=20.
 interporder=4
 interpkind='cubic'
 
@@ -27,14 +27,14 @@ for modenum in range(1,31):
             tnearest=datatable[ii,timecolumn]
             indexnearest=ii
     for ii in range(interporder):
-        print(modenum,tnearest, indexnearest)
+        print(modenum,t0, tnearest, indexnearest)
         tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]
         print(tstored[ii])
         lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
-        func=interp1d(tstored,lstored,kind=interpkind)
-        lbest=func(t0)
-        lstoredlist.append[lbest]
-        
+    func=interp1d(tstored,lstored,kind=interpkind)
+    lbest=func(t0)
+    lstoredlist.append[lbest]
+    
             
 ls=np.array(range(1,31))
 print(len(ls),len(lstoredlist))
