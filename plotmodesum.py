@@ -7,7 +7,7 @@ columnoffset=5
 timecolumn=0
 nummodes=6
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n32/psir_l.asc", skiprows=1)
-t0=600.
+t0=200.
 interporder=4
 interpkind='cubic'
 tstoredlist=[]
@@ -45,5 +45,5 @@ ax.set_yscale('log')
 ax.set_xscale('log')
 plt.ylabel('Re(dpsi/dr)')
 plt.xlabel('l mode')
-plt.title('DG order = 40')
+plt.title('DG order = 40, t=200')
 plt.show()
