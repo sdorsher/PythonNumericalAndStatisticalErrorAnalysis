@@ -24,7 +24,10 @@ def ratiofuncprime(alpha, n1, n2, n3, yratio):
     ratioderiv=numerator/denominator
     print ratioderiv
     return ratioderiv
-                                                          
+
+def func(n, alpha, ccoeff, finf):
+    return finf-ccoeff*np.exp(-alpha*n)
+
 fio=open("coeffsbyl.csv","a")
 columnoffset=5
 timecolumn=0
@@ -33,13 +36,13 @@ timecolumn=0
 nummodes = 6
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
 #orders=[8,16,24,32, 40,56,36,44,28,48,52,20]
-orders=[20, 24,28, 32,33,36,40,44] #not 48
+orders=[20, 24,28, 32,36,40,44] #not 48,33
 #[8,16]
 #orderspred=[25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56
 #orderspred=[36,44, 28,20, 48] #20 defective? #52 still running, changedir
 orderspred=[32,33,36,40,44] #20 defective? #52 still running, changedir
 #t0=472.721
-t0=200
+t0=600
 #t0=786.7
 interporder=4
 interpkind='cubic'
@@ -49,7 +52,7 @@ i2=i1+1
 i3=i1+2
 
 
-for modenum in range(3,6):
+for modenum in range(8,10):
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
@@ -96,14 +99,12 @@ for modenum in range(3,6):
      
      yratio=(lbestarr[2]-lbestarr[3])/(lbestarr[2]-lbestarr[4])
      print lbestarr[2], lbestarr[3], lbestarr[4], yratio
-     alphaupper=1.0-yratio
-     alphalower=0.0-yratio
      alpha0=0.2
      
      #pylab.plot(alpha,ratiofunc(alpha,n1,n2,n3))
      #pylab.show()
-     #alpha =optimization.newton(ratiofunc,alpha0,fprime=ratiofuncprime, tol=1e-12,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None)
-     alpha =optimization.bisect(ratiofunc,alphaupper,alphalower,args=(orders[i1],orders[i2],orders[i3],yratio))
+     alpha =optimization.newton(ratiofunc,alpha0,fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None)
+     #alpha =optimization.bisect(ratiofunc,alphaupper,alphalower,args=(orders[i1],orders[i2],orders[i3],yratio))
      
      print "alpha= ", alpha
      
@@ -113,6 +114,25 @@ for modenum in range(3,6):
      
      print alpha, ccoeff, finf
 
+     sigm=np.zeros(len(orders))
+     for ii in range(len(orders)):
+         if(alpha>0):
+             sigm[ii]=exp(-alpha*orders[ii])
+             #best guess at orders scaling given initial offset and scaling
+             #from extrapolation
+         else:
+            sigm[ii]=1.
+
+     #fit_params,fit_cov=optimization.curve_fit(func,orders,lbestarr)
+
+
+                                               #p0=np.array([alpha, ccoeff, finf]),sigma=sigm)
+
+     #alpha=fit_params[0]
+     #ccoeff=fit_params[1]
+     #finf=fit_params[2]
+
+     
      csvwriter=csv.writer(fio,delimiter=' ')
      csvwriter.writerow([modenum,alpha,ccoeff,finf])
      lpred= np.zeros(len(orderspred))
@@ -121,9 +141,9 @@ for modenum in range(3,6):
          lbestnew[ii]=abs(lbestarr[ii]-finf)
      for ii in range(len(orderspred)):
          lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
-     
-     #ordertot=np.concatenate(orders,orderspred)
-     #ltot=np.concatenate(lbestarr,lpred)
+        
+    #ordertot=np.concatenate(orders,orderspred)
+    #ltot=np.concatenate(lbestarr,lpred)
      
      
      plt.plot(orders,lbestnew, 'o')
@@ -137,7 +157,7 @@ for modenum in range(3,6):
      plt.show()
      
 fio.close()
-    #fig=plt.plot(orders,abs(lbestarr-bestvals[0]), 'o-')
+#fig=plt.plot(orders,abs(lbestarr-bestvals[0]), 'o-')
 #ax=plt.gca()
 #ax.set_yscale('log')
 #plt.plot(orders, abs(-bestvals[1]*exp(-orders),'--')
