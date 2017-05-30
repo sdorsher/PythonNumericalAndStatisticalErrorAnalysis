@@ -7,6 +7,10 @@ from scipy import optimize
 def fit_func(ldata, param0,param1,param2,param3,param4):
     psir=param0+param1/(2*ldata-1)/(2*ldata+3)+param2/(2*ldata-3)/(2*ldata-1)/(2*ldata+3)/(2*ldata+5)+param3/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)+param4/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)/(2*ldata-7)/(2*ldata+9)
     return psir
+
+def fit_func2(ldata, param0,param1,param2):
+    psir=param0+param1/(2*ldata-1)/(2*ldata+3)+param2/(2*ldata-3)/(2*ldata-1)/(2*ldata+3)/(2*ldata+5)
+    return psir
     
 def test_func(ldata,C,A):
     return C*ldata**-A
@@ -21,17 +25,17 @@ datatable =np.loadtxt("coeffsbyl570.csv", skiprows=startmode)
 llist=datatable[:,lcolumn]
 psir=datatable[:,finfcolumn]
 
-#errscale=zeros(len(llist))
-#for ii in range(len(llist)):
-    
+errscale=np.zeros(len(llist))
+for ii in range(len(llist)):
+    errscale[ii]=llist[ii]**-2.
 
-paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir)
-linearparam, linearcov = optimize.curve_fit(test_func, llist, psir)
+paramopt, paramcov = optimize.curve_fit(fit_func2, llist,psir,sigma=errscale)
+linearparam, linearcov = optimize.curve_fit(test_func, llist, psir,sigma=errscale)
 
 
 
 plt.plot(llist,psir,'x',label='Extrapolated data')
-plt.plot(llist,fit_func(llist,paramopt[0],paramopt[1], paramopt[2],paramopt[3],paramopt[4]),'-', label='Fit using Hesthaven et al')
+plt.plot(llist,fit_func2(llist,paramopt[0],paramopt[1],paramopt[2]),'-', label='Fit using Hesthaven et al')
 plt.plot(llist,test_func(llist,linearparam[0], linearparam[1]), '--', label='Power law fit, exp=-'+str(linearparam[1]))
 ax=plt.gca()
 ax.set_yscale('log')
