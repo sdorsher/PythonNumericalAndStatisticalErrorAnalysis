@@ -28,6 +28,8 @@ def ratiofuncprime(alpha, n1, n2, n3, yratio):
 def func(n, alpha, ccoeff, finf):
     return finf-ccoeff*np.exp(-alpha*n)
 
+start=0
+step = 1
 fio=open("coeffsbyl.csv","a")
 columnoffset=5
 timecolumn=0
@@ -42,7 +44,9 @@ orders=[20, 24,28, 32,36,40,44] #not 48,33
 #orderspred=[36,44, 28,20, 48] #20 defective? #52 still running, changedir
 orderspred=[32,33,36,40,44] #20 defective? #52 still running, changedir
 #t0=472.721
-t0=600
+#t0=654
+#t0=500
+t0=570
 #t0=786.7
 interporder=4
 interpkind='cubic'
@@ -52,7 +56,7 @@ i2=i1+1
 i3=i1+2
 
 
-for modenum in range(8,10):
+for modenum in range(start,31,step):
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
@@ -134,7 +138,7 @@ for modenum in range(8,10):
 
      
      csvwriter=csv.writer(fio,delimiter=' ')
-     csvwriter.writerow([modenum,alpha,ccoeff,finf])
+     csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
      lpred= np.zeros(len(orderspred))
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
@@ -146,20 +150,15 @@ for modenum in range(8,10):
     #ltot=np.concatenate(lbestarr,lpred)
      
      
-     plt.plot(orders,lbestnew, 'o')
-     plt.plot(orderspred, lpred, 'x')
-     ax=plt.gca()
-     ax.set_yscale('log')
-     #ax.set_xscale('log')
-     plt.ylabel('Re(dpsi/dr)')
-     plt.xlabel('DG order')
-     plt.title('Mode l='+str(modenum))
-     plt.show()
+     #plt.plot(orders,lbestnew, 'o')
+     #plt.plot(orderspred, lpred, 'x')
+     #ax=plt.gca()
+     #ax.set_yscale('log')
+     #plt.ylabel('Re(dpsi/dr)')
+     #plt.xlabel('DG order')
+     #plt.title('Mode l='+str(modenum)+' time = ' + str(t0))
+     #plt.show()
      
 fio.close()
-#fig=plt.plot(orders,abs(lbestarr-bestvals[0]), 'o-')
-#ax=plt.gca()
-#ax.set_yscale('log')
-#plt.plot(orders, abs(-bestvals[1]*exp(-orders),'--')
-#plt.show()
+
 
