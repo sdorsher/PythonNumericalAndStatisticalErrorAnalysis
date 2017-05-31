@@ -18,6 +18,7 @@ def ratiofunc(alpha, n1, n2, n3, yratio):
     return ratio
     
 def ratiofuncprime(alpha, n1, n2, n3, yratio):
+    
     numerator=exp(alpha*(n3-n2))*(n3-n2+exp(alpha*(n3-n1))*(n2-n1)
                                   +exp(alpha*(n2-n1))*(n1-n3))
     denominator=(1-exp(alpha*(n3-n1)))**2
@@ -28,7 +29,7 @@ def ratiofuncprime(alpha, n1, n2, n3, yratio):
 def func(n, alpha, ccoeff, finf):
     return finf-ccoeff*np.exp(-alpha*n)
 
-start=0
+start=7
 step = 1
 fio=open("coeffsbyl.csv","a")
 columnoffset=5
@@ -46,7 +47,7 @@ orderspred=[32,33,36,40,44] #20 defective? #52 still running, changedir
 #t0=472.721
 #t0=654
 #t0=500
-t0=570
+t0=480
 #t0=786.7
 interporder=4
 interpkind='cubic'
@@ -57,6 +58,7 @@ i3=i1+2
 
 
 for modenum in range(start,31,step):
+     print "modenum = ", modenum
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])

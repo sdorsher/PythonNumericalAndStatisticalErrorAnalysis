@@ -14,7 +14,7 @@ columnoffset=5
 timecolumn=0
 nummodes=6
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n32/psir_l.asc", skiprows=1)
-t0=200.
+t0=570.
 interporder=4
 interpkind='cubic'
 tstoredlist=[]

@@ -18,10 +18,11 @@ def test_func(ldata,C,A):
 finfcolumn=4
 lcolumn=1
 nummodes=31
-t0=570
+
 startmode=2
 datatable =np.loadtxt("coeffsbyl570.csv", skiprows=startmode)
-            
+
+t0 = datatable[0,0]
 llist=datatable[:,lcolumn]
 psir=datatable[:,finfcolumn]
 
@@ -29,13 +30,13 @@ errscale=np.zeros(len(llist))
 for ii in range(len(llist)):
     errscale[ii]=llist[ii]**-2.
 
-paramopt, paramcov = optimize.curve_fit(fit_func2, llist,psir,sigma=errscale)
+paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir,sigma=errscale)
 linearparam, linearcov = optimize.curve_fit(test_func, llist, psir,sigma=errscale)
 
 
 
 plt.plot(llist,psir,'x',label='Extrapolated data')
-plt.plot(llist,fit_func2(llist,paramopt[0],paramopt[1],paramopt[2]),'-', label='Fit using Hesthaven et al')
+plt.plot(llist,fit_func(llist,paramopt[0],paramopt[1],paramopt[2], paramopt[3], paramopt[4]),'-', label='Fit using Hesthaven et al')
 plt.plot(llist,test_func(llist,linearparam[0], linearparam[1]), '--', label='Power law fit, exp=-'+str(linearparam[1]))
 ax=plt.gca()
 ax.set_yscale('log')
