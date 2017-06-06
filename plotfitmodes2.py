@@ -48,7 +48,7 @@ def fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex):
         
     partialsum=[]
     partialsum2=[]
-    psirtosum=np.sum(datatable[0:maxmodefit+1,finfcolumn])
+    psirtosum=np.sum(psir[0:maxmodefit+1])
     unextrapolatedsum=np.sum(psirtosum)
     extrapolatedsum1=sum_func1(maxmodefit+1)*paramopt[0]
     partialsum.append(extrapolatedsum1)
@@ -93,7 +93,7 @@ fitindices=np.array(range(2,3,1))
 sumtotalarr=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
 startx=np.zeros(len(sumtotalarr))
 finaly=np.zeros(len(sumtotalarr))
-orders=[24,28, 32,36,40,44,4000000] #not 48,33
+orders=[24,28, 32,36,40,44,0] #not 48,33
 #order 400 is actually infinite
 usesigma=False
 
@@ -104,7 +104,7 @@ bestselfforcearr=np.zeros(len(orders))
 count =0
 for order in range(len(orders)):
     skprows=1
-    if(orders[count]==4000000):
+    if(orders[count]==0):
         loadstring = "coeffsbyl"+str(t0)+".csv"
         skprows=0
     elif((orders[count]==48) or (orders[count]==28) or (orders[count]==20)):
@@ -118,7 +118,7 @@ for order in range(len(orders)):
         
     datatable=np.loadtxt(loadstring,skiprows=skprows)
     print loadstring
-    if(orders[count]!=4000000):
+    if(orders[count]!=0):
         for ii in range(len(datatable[:,timecolumn])):
             if datatable[ii,timecolumn]<t0:
                 tnearest=datatable[ii,timecolumn]
@@ -141,7 +141,9 @@ for order in range(len(orders)):
         for startindex in startindeces:
             modei=0
             for maxmodefit in finalindices:
-                if (orders[count]==4000000):
+                llist=np.zeros(maxmodefit+1-startindex)
+                psir=np.zeros(len(llist))
+                if (orders[count]==0):
                     llist=datatable[startindex:maxmodefit+1,lcolumn]
                     psir=datatable[startindex:maxmodefit+1,finfcolumn]
                 else:
@@ -149,16 +151,16 @@ for order in range(len(orders)):
                     psir=lbestarr[startindex:maxmodefit+1,count]
                     sigmaweights=np.ones(len(llist))
                     
-                    if(usesigma):
-                        for ii in range(len(llist)):
-                            sigmaweights[ii]=llist[ii]**-2.
+                if(usesigma):
+                    for ii in range(len(llist)):
+                        sigmaweights[ii]=llist[ii]**-2.
                     
                     
-                    sumtotal=fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex)
-                    print sumtotal
-                    sumtotalarr[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=sumtotal
-                    startx[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=startindex
-                    finaly[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=maxmodefit
+                sumtotal=fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex)
+                print sumtotal
+                sumtotalarr[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=sumtotal
+                startx[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=startindex
+                finaly[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=maxmodefit
                 
                 modei+=1
             
@@ -188,12 +190,21 @@ for order in range(len(orders)):
             #plt.title('Radial self force fit residuals, t=' + str(t0))
             #', starting from l=' + str(startmode))
 
-plt.plot(orders[:len(orders)-1],bestselfforcearr[:len(orders)-1],'x-',label='Finite DG order')
-plt.plot(orders[:len(orders)-1],bestselfforcearr[len(orders)-1]*np.ones(len(orders)-1),'-',label='Infinite DG order')
-plt.legend(loc='lower right')
+psiradjusted=np.zeros(len(orders)-1)
+for ii in range(len(orders)-1):
+    psiradjusted[ii]=abs(bestselfforcearr[len(orders)-1]-bestselfforcearr[ii])
+print orders
+print bestselfforcearr
+print psiradjusted
+    #plt.plot(orders[:len(orders)-1],bestselfforcearr[:len(orders)-1],'x-',label='Finite DG order')
+#plt.plot(orders[:len(orders)-1],bestselfforcearr[len(orders)-1]*np.ones(len(orders)-1),'-',label='Infinite DG order')
+plt.plot(orders[:len(orders)-1],psiradjusted,'o',label='Finite minus infinte order self force')
+ax=plt.gca()
+ax.set_yscale('log')
+plt.legend(loc='upper right')
 plt.ylabel('Summed radial self force')
 plt.xlabel('DG order')
-plt.title('Summed radial self force, sigma~-l^2 weights')
+plt.title('lmin=14, lmax=26')
 plt.show()
 
             
