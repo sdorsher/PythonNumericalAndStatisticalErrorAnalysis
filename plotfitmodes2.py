@@ -94,6 +94,9 @@ sumtotalarr=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
 startx=np.zeros(len(sumtotalarr))
 finaly=np.zeros(len(sumtotalarr))
 orders=[12,16,20,24,28, 32,36,40,44,0] #not 48,33
+i1=3
+i2=i1+1
+i3=i2+1
 #order 400 is actually infinite
 usesigma=False
 
@@ -101,11 +104,13 @@ lbestarr=np.zeros([len(allindices),len(orders)])
 
 bestselfforcearr=np.zeros(len(orders))
 
+
+
 count =0
 for order in range(len(orders)):
     skprows=1
     if(orders[count]==0):
-        loadstring = "coeffsbyl"+str(t0)+".csv" #extrapolate from 24, 28, 32
+        loadstring = "coeffsbyl"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv" #extrapolate from 24, 28, 32
         skprows=0
     elif((orders[count]==48) or (orders[count]==28) or (orders[count]==20)):
         loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
@@ -119,6 +124,7 @@ for order in range(len(orders)):
         loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
     else:
         loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"/psir_l.asc"
+
         
     datatable=np.loadtxt(loadstring,skiprows=skprows)
     print loadstring
@@ -208,7 +214,7 @@ ax.set_yscale('log')
 plt.legend(loc='upper right')
 plt.ylabel('Summed radial self force')
 plt.xlabel('DG order')
-plt.title('lmin=14, lmax=26, Finf extrapolated from order 24, 28, 32')
+plt.title('lmin=14, lmax=26, Finf extrapolated from order '+str(orders[i1])+", "+str(orders[i2])+", "+str(orders[i3]))
 plt.show()
 
             
