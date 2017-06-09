@@ -24,8 +24,8 @@ def func(n, alpha, ccoeff, finf):
     return finf-ccoeff*np.exp(-alpha*n)
 t0=570
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
-start=15
-i1=0
+start=0
+i1=4
 i2=i1+1
 i3=i1+2
 step = 1
@@ -145,7 +145,7 @@ for modenum in range(start,31,step):
      plt.xlabel('DG order')
      plt.ylabel('Radial self force minus Finf')
      plt.title('l='+str(modenum)+", extrapolated from orders "+str(orders[i1])+", "+str(orders[i2])+", and "+str(orders[i3]))
-     plt.show()    
+     #plt.show()    
 fio.close()
 
 
