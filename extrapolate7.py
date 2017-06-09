@@ -13,37 +13,13 @@ import pylab
 #    return(ydata-cl*exp(-alpha*xdata))
 
 def ratiofunc(alpha, n1, n2, n3, yratio):
-    ratio=(1-exp(-alpha*(n1-n2)))/(1-exp(-alpha*(n3-n2)))-yratio
-    return ratio
+    return (exp(-alpha*n2)-exp(-n1*alpha))/(exp(-n3*alpha)-exp(-alpha*n1))-yratio
     
 def ratiofuncprime(alpha, n1, n2, n3, yratio):
+    print alpha, n1, n2, n3
+    return exp(-alpha*(-n1+n2+n3))*(exp(alpha*n3)*(-n1+n2)+exp(alpha*n2)*(n1-n3)+exp(alpha*n1)*(-n2+n3))/(-1+exp(alpha*(n1-n3)))**2
     
-    #numerator=exp(alpha*(n3-n2))*(n3-n2+exp(alpha*(n3-n1))*(n2-n1)
-    #                              +exp(alpha*(n2-n1))*(n1-n3))
-    #print alpha, n3, n1
-    #denominator=(1-exp(alpha*(n3-n1)))**2
-    prefactor=exp(-alpha*(n1-2*n2+n3))/(1-exp(alpha*(n2-n3)))**2
-    term1=(-1+exp(alpha*(n2-n3)))*n1
-    term2 = -(-2+exp(alpha*(n1-n2))+exp(alpha*(n2-n3)))*n2
-    term3=(-1+exp(alpha*(n1-n2)))*n3
-    return prefactor*(term1+term2+term3)
-    #ratioderiv=numerator/denominator
-    #return ratioderiv
-
-def ratiofuncdoubleprime(alpha, n1,n2, n3, yratio):
-    #prefactor=exp(alpha*(-2*n1-n2-n3))/(exp(alpha*(n3-n1))-1)
-    #term1 = exp(2*alpha*n3)*(n1-n2)**2
-    #term2 = -exp(alpha*(n1+n2))*(n1-n3)**2
-    #term3 = -exp(alpha*(n2+n3))*(n1-n3)**2
-    #term4 = exp(2*alpha*n1)*(n2-n3)**2
-    #term5 = exp(alpha*(n1+n3))*(n1**2-2*n2**2+2*n1*(n2-2*n3)+2*n2*n3+n3**2)
-    #return prefactor*(term1+term2+term3+term4+term5)
-    prefactor=exp(-alpha*(n1-2*n2+n3))*(1-exp(alpha*(n2-n3)))**(-2)
-    term1=(-1+exp(alpha*(n2-n3)))*n1
-    term2=-(-2+exp(alpha*(n2-n3)))*n2
-    term3=(-1+exp(alpha*(n1-n2)))*n3
-    return prefactor*(term1+term2+term3)
-
+   
 def func(n, alpha, ccoeff, finf):
     return finf-ccoeff*np.exp(-alpha*n)
 t0=570
@@ -120,12 +96,20 @@ for modenum in range(start,31,step):
          tstoredlist.append(tstored)
          lstoredlist.append(lstored)
      
-     yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i2]-lbestarr[i3])
+     yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
      print lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
-     alpha0=0.2
+     alpha0=0.5
      
-
-     alpha =optimization.newton(ratiofunc,alpha0,fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=ratiofuncdoubleprime)
+     alphamax=alpha0
+     alphamin=-.1
+     ratiofnreturn=-1.
+     while (ratiofnreturn<0.):
+         alphamax*=1.5
+         ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
+         print ratiofnreturn, alphamax, yratio
+     
+     alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
+     #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
      
      print "alpha= ", alpha
      
