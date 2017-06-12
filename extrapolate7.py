@@ -24,12 +24,14 @@ def func(n, alpha, ccoeff, finf):
     return finf-ccoeff*np.exp(-alpha*n)
 t0=570
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
-start=0
-i1=4
-i2=i1+1
-i3=i1+2
+start=15
+i10=4
+i20=i10+1
+i30=i10+2
 step = 1
-fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv","a")
+fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+"B.csv","a")
+fio2=open("selfforceallmodes.csv","a")
+
 columnoffset=5
 timecolumn=0
 #modenum=6
@@ -41,7 +43,7 @@ datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skipro
 #orders=[ 24,28, 32,36,40,44] #not 48,33
 #[8,16]
 #orderspred=[36,40,44] #20 defective? #52 still running, changedir
-orderspred=orders[i3+1:] #20 defective? #52 still running, changedir
+
 #t0=472.721
 #t0=654
 #t0=500
@@ -49,14 +51,22 @@ orderspred=orders[i3+1:] #20 defective? #52 still running, changedir
 interporder=4
 interpkind='cubic'
 
-
+i1=i10
+i2=i20
+i3=i30
 
 
 for modenum in range(start,31,step):
      print "modenum = ", modenum
+     if (modenum<0):
+         i1=i10+1
+         i2=i20+1
+         i3=i30+1
+     orderspred=orders[i3+1:] #20 defective? #52 still running, changedir
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
+     psirarr=np.zeros([len(orders),31-start])
      lstoredlist=list(np.zeros(0))
      for count in range(len(orders)):
          tnearest=0.0
@@ -92,7 +102,7 @@ for modenum in range(start,31,step):
          func=interp1d(tstored,lstored,kind=interpkind)
          lbest=func(t0)
          lbestarr[count]=lbest
-             
+         psirarr[count,modenum-start]=lbest    
          tstoredlist.append(tstored)
          lstoredlist.append(lstored)
      
@@ -101,13 +111,16 @@ for modenum in range(start,31,step):
      alpha0=0.5
      
      alphamax=alpha0
-     alphamin=-.1
+     alphamin=1e-15
      ratiofnreturn=-1.
      while (ratiofnreturn<0.):
          alphamax*=1.5
          ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
-         print ratiofnreturn, alphamax, yratio
-     
+         print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
+
+     ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
+     print ratiofnreturn, alphamin, yratio
+         
      alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
      #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
      
@@ -119,14 +132,6 @@ for modenum in range(start,31,step):
      
      print alpha, ccoeff, finf
 
-     sigm=np.zeros(len(orders))
-     for ii in range(len(orders)):
-         if(alpha>0):
-             sigm[ii]=exp(-alpha*orders[ii])
-             #best guess at orders scaling given initial offset and scaling
-             #from extrapolation
-         else:
-            sigm[ii]=1.
 
      csvwriter=csv.writer(fio,delimiter=' ')
      csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
@@ -139,13 +144,20 @@ for modenum in range(start,31,step):
 
      plt.plot(orders,lbestnew,marker='o',label='Data')
      plt.plot(orderspred,lpred,marker='^',label='Predicted')
+     plt.plot(orders[i1:i3+1],lbestnew[i1:i3+1],'ro',label="Points used in extrapolation")
      ax=plt.gca()
      ax.set_yscale('log')
      ax.legend(loc='lower left')
      plt.xlabel('DG order')
      plt.ylabel('Radial self force minus Finf')
      plt.title('l='+str(modenum)+", extrapolated from orders "+str(orders[i1])+", "+str(orders[i2])+", and "+str(orders[i3]))
-     #plt.show()    
-fio.close()
+     plt.show()    
 
+fio.close()
+for count in range(len(orders)):
+    for modenum in range(start,31,step):
+        csvwriter2=csv.writer(fio2,delimiter=' ')
+        csvwriter2.writerow(np.append([orders[count]],psirarr[count,:]))
+        
+fio2.close()
 
