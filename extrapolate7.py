@@ -13,23 +13,21 @@ import pylab
 #    return(ydata-cl*exp(-alpha*xdata))
 
 def ratiofunc(alpha, n1, n2, n3, yratio):
-    return (exp(-alpha*n2)-exp(-n1*alpha))/(exp(-n3*alpha)-exp(-alpha*n1))-yratio
-    
-def ratiofuncprime(alpha, n1, n2, n3, yratio):
-    print alpha, n1, n2, n3
-    return exp(-alpha*(-n1+n2+n3))*(exp(alpha*n3)*(-n1+n2)+exp(alpha*n2)*(n1-n3)+exp(alpha*n1)*(-n2+n3))/(-1+exp(alpha*(n1-n3)))**2
+    return exp(4*alpha)/(1+exp(4*alpha))-yratio
+    #return exp(-alpha*n2)*(exp(alpha*n1)-exp(n2*alpha))/(exp(alpha*(n1-n3))-1)-yratio
     
    
-def func(n, alpha, ccoeff, finf):
-    return finf-ccoeff*np.exp(-alpha*n)
+#def func(n, alpha, ccoeff, finf):
+#    return finf-ccoeff*np.exp(-alpha*n)
 t0=570
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
-start=15
-i10=4
+start=5
+stop=31
+i10=5
 i20=i10+1
 i30=i10+2
 step = 1
-fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+"B.csv","a")
+fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
 fio2=open("selfforceallmodes.csv","a")
 
 columnoffset=5
@@ -56,7 +54,7 @@ i2=i20
 i3=i30
 
 
-for modenum in range(start,31,step):
+for modenum in range(start,stop,step):
      print "modenum = ", modenum
      if (modenum<0):
          i1=i10+1
@@ -66,7 +64,7 @@ for modenum in range(start,31,step):
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
-     psirarr=np.zeros([len(orders),31-start])
+     psirarr=np.zeros([len(orders),stop-start])
      lstoredlist=list(np.zeros(0))
      for count in range(len(orders)):
          tnearest=0.0
@@ -107,20 +105,22 @@ for modenum in range(start,31,step):
          lstoredlist.append(lstored)
      
      yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
-     print lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
+     print "yratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
      alpha0=0.5
      
      alphamax=alpha0
-     alphamin=1e-15
+     alphamin=1.e-12
      ratiofnreturn=-1.
      while (ratiofnreturn<0.):
          alphamax*=1.5
          ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
-         print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
+     print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
 
-     ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
+     while (ratiofnreturn>0.):
+         alphamin/=2.
+         ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
      print ratiofnreturn, alphamin, yratio
-         
+     
      alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
      #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
      
@@ -128,7 +128,7 @@ for modenum in range(start,31,step):
      
      
      ccoeff = (lbestarr[i1]-lbestarr[i2])/(exp(-alpha*orders[i1])-exp(-alpha*orders[i2]))
-     finf = lbestarr[i3]+ccoeff*exp(-alpha*orders[i3])
+     finf = lbestarr[i3]-ccoeff*exp(-alpha*orders[i3])
      
      print alpha, ccoeff, finf
 
@@ -155,7 +155,7 @@ for modenum in range(start,31,step):
 
 fio.close()
 for count in range(len(orders)):
-    for modenum in range(start,31,step):
+    for modenum in range(start,stop,step):
         csvwriter2=csv.writer(fio2,delimiter=' ')
         csvwriter2.writerow(np.append([orders[count]],psirarr[count,:]))
         
