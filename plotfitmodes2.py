@@ -1,4 +1,6 @@
 
+#Read in all orders as well as finf data. Produce plot demonstrating that modes converge. 
+
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,13 +40,14 @@ def fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex):
 
     
     fit_func=fit_func1
-    if fitindex==1:
+    if fitindex==0:
         fit_func=fit_func1
-    elif fitindex==2:
+    elif fitindex==1:
         fit_func=fit_func2
-    elif fitindex==3:
+    elif fitindex==2:
         fit_func=fit_func3
-    paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
+    #paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
+    paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir)
         
     partialsum=[]
     partialsum2=[]
@@ -54,19 +57,19 @@ def fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex):
     partialsum.append(extrapolatedsum1)
     extrapolatedsum2 = 0
     extrapolatedsum3 = 0
-    if fitindex>1:
+    if fitindex>0:
         extrapolatedsum2 = sum_func2(maxmodefit+1)*paramopt[1]
         partialsum.append(extrapolatedsum2)
-    if fitindex==3:
+    if fitindex==2:
         extrapolatedsum3 = sum_func3(maxmodefit+1)*paramopt[2]
         partialsum.append(extrapolatedsum3)
             
-    sumtot=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3
+    sumtot=unextrapolatedsum+np.sum(partialsum)
 
        
-    print sumtot,paramopt[0],paramopt[1],unextrapolatedsum,extrapolatedsum1,extrapolatedsum2,extrapolatedsum3           
-
-    return sumtot
+    #print sumtot,unextrapolatedsum,extrapolatedsum1,extrapolatedsum2,extrapolatedsum3           
+    #print paramopt
+    return paramopt,sumtot
 
             
 
@@ -87,14 +90,14 @@ maxmodefit=30
 
 t0 = 570
 allindices=np.array(range(0,31,1))
-startindeces=np.array(range(14,15,1))
-finalindices=np.array(range(26,27,1))
-fitindices=np.array(range(2,3,1))
-sumtotalarr=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
-startx=np.zeros(len(sumtotalarr))
-finaly=np.zeros(len(sumtotalarr))
+startindeces=np.array(range(14,20,1))
+finalindices=np.array(range(24,30,1))
+fitindices=np.array(range(0,3,1))
+sumtotalarr=np.zeros([len(fitindices),len(startindeces),len(finalindices)])
+startx=np.zeros([len(fitindices),len(startindeces),len(finalindices)])
+finaly=np.zeros([len(fitindices),len(startindeces),len(finalindices)])
 orders=[12,16,20,24,28, 32,36,40,44,0] #not 48,33
-i1=3
+i1=4
 i2=i1+1
 i3=i2+1
 #order 400 is actually infinite
@@ -102,10 +105,10 @@ usesigma=False
 
 lbestarr=np.zeros([len(allindices),len(orders)])
 
-bestselfforcearr=np.zeros(len(orders))
+bestselfforcearr=np.zeros([len(orders),3])
 
 
-
+paramopt=np.zeros(3);
 count =0
 for order in range(len(orders)):
     skprows=1
@@ -166,15 +169,19 @@ for order in range(len(orders)):
                         sigmaweights[ii]=llist[ii]**-2.
                     
                     
-                sumtotal=fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex)
-                print sumtotal
-                sumtotalarr[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=sumtotal
-                startx[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=startindex
-                finaly[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=maxmodefit
-                
+                paramopt,sumtotal=fit_lmode_and_sum(fitindex,llist,psir,maxmodefit,sigmaweights,startindex)
+                #print fitindices[fiti], startindeces[starti], finalindices[modei], sumtotal
+                sumtotalarr[fiti,starti,modei]=sumtotal
+                startx[fiti,starti,modei]=startindex
+                finaly[fiti,starti,modei]=maxmodefit
                 modei+=1
-            
+
             starti+=1
+        bestselfforcearr[count,fiti]=np.max(abs(sumtotalarr[fiti,:,:]))
+        lmin,lmax=np.where(abs(sumtotalarr[fiti,:,:])==bestselfforcearr[count,fiti])
+        print orders[count],fiti,lmin,lmax,bestselfforcearr[count,fiti]
+        #print orders[count], bestselfforcearr[count,fiti] 
+
         fiti+=1
         #bestselfforce=np.max(sumtotalarr)
         #bestselfforce2=np.max(sumtotalarr2)
@@ -184,10 +191,7 @@ for order in range(len(orders)):
         #beststartx2=startx[bestindexselfforce2]
         #beststarty=finaly[bestindexselfforce]
         #beststarty2=finaly[bestindexselfforce2]
-        bestselfforcearr[count]=np.max(sumtotalarr)
-
         
-        print orders[count], np.max(sumtotalarr)
 #        print orders[count], bestselfforce2, beststartx2, beststarty2, bestindexselfforce2
         
     count+=1
@@ -200,21 +204,26 @@ for order in range(len(orders)):
             #plt.title('Radial self force fit residuals, t=' + str(t0))
             #', starting from l=' + str(startmode))
 
-psiradjusted=np.zeros(len(orders)-1)
-for ii in range(len(orders)-1):
-    psiradjusted[ii]=abs(bestselfforcearr[len(orders)-1]-bestselfforcearr[ii])
-print orders
-print bestselfforcearr
-print psiradjusted
+psiradjusted=np.zeros([len(orders)-1,3])
+for fiti in range(0,3):
+    for ii in range(len(orders)-1):
+        psiradjusted[ii,fiti]=abs(bestselfforcearr[len(orders)-1,fiti]-bestselfforcearr[ii,fiti])
+    #print fiti
+    #print orders
+    #print bestselfforcearr
+    #print psiradjusted
+    
     #plt.plot(orders[:len(orders)-1],bestselfforcearr[:len(orders)-1],'x-',label='Finite DG order')
 #plt.plot(orders[:len(orders)-1],bestselfforcearr[len(orders)-1]*np.ones(len(orders)-1),'-',label='Infinite DG order')
-plt.plot(orders[:len(orders)-1],psiradjusted,'o',label='Finite minus infinte order self force')
+plt.plot(orders[:len(orders)-1],psiradjusted[:,0],'o',label='Finf extrap. orders'+str(orders[i1])+','+str(orders[i2])+','+str(orders[i3])+',Fn=max(F)|lmin,lmax,1 term')
+plt.plot(orders[:len(orders)-1],psiradjusted[:,1],'o',label='Finf extrap. orders'+str(orders[i1])+','+str(orders[i2])+','+str(orders[i3])+',Fn=max(F)|lmin,lmax,2 term')
+plt.plot(orders[:len(orders)-1],psiradjusted[:,2],'o',label='Finf extrap. orders'+str(orders[i1])+','+str(orders[i2])+','+str(orders[i3])+',Fn=max(F)|lmin,lmax,3 term')
 ax=plt.gca()
 ax.set_yscale('log')
 plt.legend(loc='upper right')
-plt.ylabel('Summed radial self force')
+plt.ylabel('Summed radial self force minus radial self force')
 plt.xlabel('DG order')
-plt.title('lmin=14, lmax=26, Finf extrapolated from order '+str(orders[i1])+", "+str(orders[i2])+", "+str(orders[i3]))
+plt.title('Convergence of total self force as a function of DG order')
 plt.show()
 
             
