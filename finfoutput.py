@@ -1,3 +1,7 @@
+# outputs a table of finf in order of increasing mode along the rows and
+# and in order of increasing order along the columns. order number is first
+# column
+
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,6 +51,8 @@ datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skipro
 interporder=4
 interpkind='cubic'
 
+finfi=np.zeros([len(orders)-2,31-start])
+
 
 for modenum in range(start,31,step):
      print "modenum = ", modenum
@@ -55,7 +61,6 @@ for modenum in range(start,31,step):
      lbestarr=np.zeros([len(orders)])
      psirarr=np.zeros([len(orders),31-start])
      lstoredlist=list(np.zeros(0))
-     finfi=np.zeros([len(orders)-2])
      for count in range(len(orders)):
          tnearest=0.0
          indexnearest=0
@@ -128,9 +133,10 @@ for modenum in range(start,31,step):
          finf = lbestarr[i3]+ccoeff*exp(-alpha*orders[i3])
      
          print alpha, ccoeff, finf
-         finfi[i1]=finf
+         finfi[i1,modenum]=finf
 
+for i1 in range(len(orders)-2):         
      csvwriter=csv.writer(fio2,delimiter=' ')
-     csvwriter.writerow(np.append([modenum],finfi))
+     csvwriter.writerow(np.append([orders[i1]],finfi[i1,:]))
 fio2.close()
 

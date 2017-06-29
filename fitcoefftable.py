@@ -1,10 +1,11 @@
-
+from mpl_toolkits.mplot3d import Axes3D
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy import optimize
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
 import csv
 
 #def fit_func(ldata, param1,param2,param3,param4):
@@ -43,7 +44,7 @@ maxmodefit=30
 #initially, sum up to maxmodefit then use fit parameters from there (because there's no reason you'd run with more modes than you intend to fit)
 #also should try summing up to start mode and using fit from there
 
-datatable =np.loadtxt("coeffsbyl570.csv")
+datatable =np.loadtxt("coeffsbyl570_28_32_36.csv")
 
 t0 = datatable[0,0]
 
@@ -145,16 +146,18 @@ for fitindex in fitindices:
         starti+=1
     fiti+=1
 fig=plt.figure()
-ax=fig.gca(projection='3d')
-ax.scatter(startx, finaly,sumtotalarr, c='b', marker='o')
-ax.scatter(startx, finaly, sumtotalarr2, c='r',marker='^')
-ax=plt.gca()
+ax=plt.axes(projection='3d')
+#ax.scatter(startx, finaly,sumtotalarr, c='b', marker='o')
+#ax.scatter(startx, finaly, sumtotalarr2, c='r',marker='^')
+startx2,finaly2 = np.meshgrid(startx,finaly)
+ax.plot_wireframe(startx2,finaly2,sumtotalarr,rstride=1,cstride=1)
+#ax=plt.gca()
 
-print startx
+print sumtotalarr
 ax.set_zlabel("")
-ax.set_xlim(min(startx),max(startx))
-ax.set_ylim(min(finaly),max(finaly))
-ax.set_zlim(min(sumtotalarr),max(sumtotalarr))
+#ax.set_xlim(min(startx),max(startx))
+#ax.set_ylim(min(finaly),max(finaly))
+#ax.set_zlim(min(sumtotalarr),max(sumtotalarr))
 plt.xlabel("Start l mode")
 plt.ylabel("Final l mode")
 #plt.zlabel("Summed radial self force")
