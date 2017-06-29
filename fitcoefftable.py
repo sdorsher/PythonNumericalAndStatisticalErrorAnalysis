@@ -9,6 +9,7 @@ from scipy import optimize
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 import csv
+from matplotlib import ticker
 
 #def fit_func(ldata, param1,param2,param3,param4):
 #    psir=param1/(2*ldata-1)/(2*ldata+3)+param2/(2*ldata-3)/(2*ldata-1)/(2*ldata+3)/(2*ldata+5)+param3/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)+param4/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)/(2*ldata-7)/(2*ldata+9)
@@ -36,7 +37,7 @@ def sum_func2(lmin):
 def sum_func3(lmin):
     return lmin/5./(2.*lmin-5.)/(2.*lmin-3.)/(3.*lmin-1.)/(2.*lmin+1.)/(2.*lmin+3.)/(2.*lmin+5.)
 
-
+minplotnum=2
 finfcolumn=4
 lcolumn=1
 nummodes=31
@@ -50,13 +51,16 @@ datatable =np.loadtxt("coeffsbyl570_28_32_36.csv")
 
 t0 = datatable[0,0]
 
+plotnosigma=True
+plotsigma=False
+
 startindeces=np.array(range(14,22,1))
 finalindices=np.array(range(26,31,1))
-fitindices=np.array(range(1,2,1))
-sumtotalarr=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
-sumtotalarr2=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
-startx=np.zeros(len(sumtotalarr))
-finaly=np.zeros(len(sumtotalarr))
+fitindices=[1,2,3]
+sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
+sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
+startx=np.zeros(len(sumtotalarr[0,:]))
+finaly=np.zeros(len(sumtotalarr[0,:]))
 
 
 
@@ -80,8 +84,8 @@ for fitindex in fitindices:
                 fit_func=fit_func2
             elif fitindex==3:
                 fit_func=fit_func3
-            paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
-            paramopt2, paramcov2 = optimize.curve_fit(fit_func, llist,psir)
+            paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir)
+            paramopt2, paramcov2 = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
     
             partialsum=[]
             partialsum2=[]
@@ -110,12 +114,13 @@ for fitindex in fitindices:
                 partialsum.append(extrapolatedsum3)
             
             sumtotal=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3
-            sumtotal2=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3
-            sumtotalarr[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=sumtotal
-            sumtotalarr2[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=sumtotal
-            startx[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=startindex
-            finaly[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=maxmodefit
-
+            sumtotal2=unextrapolatedsum+extrapolatedsum1_2+extrapolatedsum2_2+extrapolatedsum3_2
+            sumtotalarr[fiti,starti*(len(finalindices))+modei]=sumtotal
+            sumtotalarr2[fiti,starti*(len(finalindices))+modei]=sumtotal2
+            if(fiti==0):
+                startx[starti*(len(finalindices))+modei]=startindex
+                finaly[starti*(len(finalindices))+modei]=maxmodefit
+            
             temp = 0
             temp2=0
             if fitindex>1:
@@ -156,17 +161,53 @@ ax=plt.axes(projection='3d')
 #ax.scatter(startx, finaly, sumtotalarr2, c='r',marker='^')
 startx2 = np.reshape(startx,(len(startindeces),len(finalindices)))
 finaly2 = np.reshape(finaly,(len(startindeces),len(finalindices)))
-zvals = np.reshape(sumtotalarr,(len(startindeces),len(finalindices)))
-ax.plot_wireframe(startx2,finaly2,zvals,rstride=1,cstride=1)
+if 1 in fitindices:
+    oneindex=fitindices.index(1)
+    zvals1 = np.reshape(sumtotalarr[oneindex,:],(len(startindeces),len(finalindices)))
+    zvals1_2 = np.reshape(sumtotalarr2[oneindex,:],(len(startindeces),len(finalindices)))
+if 2 in fitindices:
+    twoindex=fitindices.index(2)
+    print twoindex
+    zvals2 =np.reshape(sumtotalarr[twoindex,:],(len(startindeces),len(finalindices)))
+    zvals2_2 =np.reshape(sumtotalarr2[twoindex,:],(len(startindeces),len(finalindices)))
+if 3 in fitindices:
+    threeindex=fitindices.index(3)
+    zvals3 = np.reshape(sumtotalarr[threeindex,:],(len(startindeces),len(finalindices)))
+    zvals3_2 = np.reshape(sumtotalarr2[threeindex,:],(len(startindeces),len(finalindices)))
+
+
+if 1 in fitindices:
+    if plotnosigma:
+        ax.plot_wireframe(startx2,finaly2,zvals1,rstride=1,cstride=1,color="red",label='1 term')
+    if plotsigma:
+        ax.plot_wireframe(startx2,finaly2,zvals1_2,rstride=1,cstride=1,color="black",label='weights')
+if 2 in fitindices:
+    if plotnosigma:
+        ax.plot_wireframe(startx2,finaly2,zvals2,rstride=1,cstride=1,color="blue",label='2 term')
+    if plotsigma:
+        ax.plot_wireframe(startx2,finaly2,zvals2_2,rstride=1,cstride=1,color="orange",label='weights')
+if 3 in fitindices:
+    if plotnosigma:
+        ax.plot_wireframe(startx2,finaly2,zvals3,rstride=1,cstride=1,color="green",label='3 term')
+    if plotsigma:
+        ax.plot_wireframe(startx2,finaly2,zvals3_2,rstride=1,cstride=1,color="purple",label='weights')
+ax.legend(loc='lower left')
 #ax=plt.gca()
 
 #print sumtotalarr
 ax.set_zlabel("")
-#ax.set_xlim(min(startx),max(startx))
-#ax.set_ylim(min(finaly),max(finaly))
-#ax.set_zlim(min(sumtotalarr),max(sumtotalarr))
+ax.set_xlim(min(startindeces),max(startindeces))
+ax.set_ylim(min(finalindices),max(finalindices))
+#ax.set_zlim(min(min(zvals1),min(zvals2),min(zvals3)),max(max(zvals1),max(zvals2),max(zvals3)))
+
+formatter=ticker.ScalarFormatter(useMathText=True)
+formatter.set_scientific(True)
+ax.w_zaxis.set_major_formatter(formatter)
+ax.ticklabel_format(axis="z",style="sci",scilimits=(0,0))
 plt.xlabel("Start l mode")
 plt.ylabel("Final l mode")
 #plt.zlabel("Summed radial self force")
 plt.title("Variation of total radial self force with start and end ponits of fit")
 plt.show()
+
+
