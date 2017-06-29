@@ -1,3 +1,5 @@
+#Works fine as long as you don't loop over fitindices. Produces a wire grid plot (a surface plot) of the summed self force as a function of lmin and lmax
+
 from mpl_toolkits.mplot3d import Axes3D
 from math import *
 import numpy as np
@@ -50,7 +52,7 @@ t0 = datatable[0,0]
 
 startindeces=np.array(range(14,22,1))
 finalindices=np.array(range(26,31,1))
-fitindices=np.array(range(2,4,1))
+fitindices=np.array(range(1,2,1))
 sumtotalarr=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
 sumtotalarr2=np.zeros([len(fitindices)*len(startindeces)*len(finalindices)])
 startx=np.zeros(len(sumtotalarr))
@@ -115,10 +117,13 @@ for fitindex in fitindices:
             finaly[fiti*len(finalindices)*len(startindeces)+starti*(len(finalindices))+modei]=maxmodefit
 
             temp = 0
+            temp2=0
+            if fitindex>1:
+                tem2 = paramopt[1]
             if fitindex==3:
                 temp = paramopt[2]
             with open('parametertable.dat', 'a') as file:
-                file.write(str(fitindex)+","+str(startindex)+","+str(maxmodefit)+","+str(sumtotal)+","+str(paramopt[0])+","+str(paramopt[1])+","+str(temp)+","+str(unextrapolatedsum)+","+str(extrapolatedsum1)+","+str(extrapolatedsum2)+","+str(extrapolatedsum3))
+                file.write(str(fitindex)+","+str(startindex)+","+str(maxmodefit)+","+str(sumtotal)+","+str(paramopt[0])+","+str(temp2)+","+str(temp)+","+str(unextrapolatedsum)+","+str(extrapolatedsum1)+","+str(extrapolatedsum2)+","+str(extrapolatedsum3))
                 file.write("\n")
             #print "params=", paramopt
             #print "partialsum=",partialsum
@@ -149,11 +154,13 @@ fig=plt.figure()
 ax=plt.axes(projection='3d')
 #ax.scatter(startx, finaly,sumtotalarr, c='b', marker='o')
 #ax.scatter(startx, finaly, sumtotalarr2, c='r',marker='^')
-startx2,finaly2 = np.meshgrid(startx,finaly)
-ax.plot_wireframe(startx2,finaly2,sumtotalarr,rstride=1,cstride=1)
+startx2 = np.reshape(startx,(len(startindeces),len(finalindices)))
+finaly2 = np.reshape(finaly,(len(startindeces),len(finalindices)))
+zvals = np.reshape(sumtotalarr,(len(startindeces),len(finalindices)))
+ax.plot_wireframe(startx2,finaly2,zvals,rstride=1,cstride=1)
 #ax=plt.gca()
 
-print sumtotalarr
+#print sumtotalarr
 ax.set_zlabel("")
 #ax.set_xlim(min(startx),max(startx))
 #ax.set_ylim(min(finaly),max(finaly))
