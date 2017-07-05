@@ -24,10 +24,13 @@ def fit_func2(ldata,param1,param2):
     return psir
 
 def fit_func3(ldata,param1,param2,param3):
-    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)+param3/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)
+    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)+param3/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)
     return psir
 
-
+def fit_func4(ldata,param1,param2,param3,param4):
+    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)+param3/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)+param4/(2.*ldata-7.)/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)/(2.*ldata+9.)
+    return psir
+    
 def sum_func1(lmin):
     return lmin/(4.*lmin**2.-1.)
 
@@ -35,7 +38,10 @@ def sum_func2(lmin):
     return lmin/3./(9.-40.*lmin**2.+16.*lmin**4.)
 
 def sum_func3(lmin):
-    return lmin/5./(2.*lmin-5.)/(2.*lmin-3.)/(3.*lmin-1.)/(2.*lmin+1.)/(2.*lmin+3.)/(2.*lmin+5.)
+    return lmin/5./(2.*lmin-5.)/(2.*lmin-3.)/(2.*lmin-1.)/(2.*lmin+1.)/(2.*lmin+3.)/(2.*lmin+5.)
+
+def sum_func4(lmin):
+    return lmin/7./(2.*lmin-7.)/(2.*lmin-5.)/(2.*lmin-3.)/(2.*lmin-1.)/(2.*lmin+1.)/(2.*lmin+3.)/(2.*lmin+5.)/(2.*lmin+7.)
 
 minplotnum=2
 finfcolumn=4
@@ -47,7 +53,9 @@ maxmodefit=30
 #initially, sum up to maxmodefit then use fit parameters from there (because there's no reason you'd run with more modes than you intend to fit)
 #also should try summing up to start mode and using fit from there
 
-datatable =np.loadtxt("coeffsbyl570_28_32_36.csv")
+#datatable =np.loadtxt("coeffsbyl570_28_32_36.csv")
+#datatable =np.loadtxt("coeffsbyl590_24_28_32.csv")
+datatable =np.loadtxt("coeffsbyl610_12_16_20.csv")
 
 t0 = datatable[0,0]
 
@@ -56,7 +64,7 @@ plotsigma=False
 
 startindeces=np.array(range(14,22,1))
 finalindices=np.array(range(26,31,1))
-fitindices=[1,2,3]
+fitindices=[2,3,4]
 sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
 sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
 startx=np.zeros(len(sumtotalarr[0,:]))
@@ -84,9 +92,10 @@ for fitindex in fitindices:
                 fit_func=fit_func2
             elif fitindex==3:
                 fit_func=fit_func3
+            elif fitindex==4:
+                fit_func=fit_func4
             paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir)
             paramopt2, paramcov2 = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
-    
             partialsum=[]
             partialsum2=[]
             psirtosum=np.sum(datatable[0:maxmodefit+1,finfcolumn])
@@ -95,40 +104,49 @@ for fitindex in fitindices:
             partialsum.append(extrapolatedsum1)
             extrapolatedsum2 = 0
             extrapolatedsum3 = 0
+            extrapolatedsum4 = 0
             if fitindex>1:
                 extrapolatedsum2 = sum_func2(maxmodefit+1)*paramopt[1]
                 partialsum.append(extrapolatedsum2)
-            if fitindex==3:
+            if fitindex>2:
                 extrapolatedsum3 = sum_func3(maxmodefit+1)*paramopt[2]
                 partialsum.append(extrapolatedsum3)
-
+            if fitindex>3:
+                extrapolatedsum4 = sum_func4(maxmodefit+1)*paramopt[3]
+                partialsum.append(extrapolatedsum4)
             extrapolatedsum1_2=sum_func1(maxmodefit+1)*paramopt2[0]
-            partialsum.append(extrapolatedsum1)
+            partialsum2.append(extrapolatedsum1)
             extrapolatedsum2_2 = 0
             extrapolatedsum3_2 = 0
+            extrapolatedsum4_2 = 0
             if fitindex>1:
                 extrapolatedsum2_2 = sum_func2(maxmodefit+1)*paramopt2[1]
-                partialsum.append(extrapolatedsum2)
-            if fitindex==3:
+                partialsum2.append(extrapolatedsum2)
+            if fitindex>2:
                 extrapolatedsum3_2 = sum_func3(maxmodefit+1)*paramopt2[2]
-                partialsum.append(extrapolatedsum3)
-            
-            sumtotal=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3
-            sumtotal2=unextrapolatedsum+extrapolatedsum1_2+extrapolatedsum2_2+extrapolatedsum3_2
+                partialsum2.append(extrapolatedsum3)
+            if fitindex>3:
+                extrapolatedsum4_2 = sum_func4(maxmodefit+1)*paramopt2[3]
+                partialsum2.append(extrapolatedsum3)
+            sumtotal=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3+extrapolatedsum4
+            sumtotal2=unextrapolatedsum+extrapolatedsum1_2+extrapolatedsum2_2+extrapolatedsum3_2+extrapolatedsum4_2
             sumtotalarr[fiti,starti*(len(finalindices))+modei]=sumtotal
             sumtotalarr2[fiti,starti*(len(finalindices))+modei]=sumtotal2
             if(fiti==0):
                 startx[starti*(len(finalindices))+modei]=startindex
                 finaly[starti*(len(finalindices))+modei]=maxmodefit
             
-            temp = 0
+            temp1 = 0
             temp2=0
+            temp3=0
             if fitindex>1:
-                tem2 = paramopt[1]
-            if fitindex==3:
-                temp = paramopt[2]
+                temp1 = paramopt[1]
+            if fitindex>2:
+                temp2 = paramopt[2]
+            if fitindex>3:
+                temp3 = paramopt[3]
             with open('parametertable.dat', 'a') as file:
-                file.write(str(fitindex)+","+str(startindex)+","+str(maxmodefit)+","+str(sumtotal)+","+str(paramopt[0])+","+str(temp2)+","+str(temp)+","+str(unextrapolatedsum)+","+str(extrapolatedsum1)+","+str(extrapolatedsum2)+","+str(extrapolatedsum3))
+                file.write(str(fitindex)+","+str(startindex)+","+str(maxmodefit)+","+str(sumtotal)+","+str(paramopt[0])+","+str(temp1)+","+str(temp2)+","+str(temp3)+","+str(unextrapolatedsum)+","+str(extrapolatedsum1)+","+str(extrapolatedsum2)+","+str(extrapolatedsum3))
                 file.write("\n")
             #print "params=", paramopt
             #print "partialsum=",partialsum
@@ -142,6 +160,8 @@ for fitindex in fitindices:
                     residual[ii]=psir[ii]-fit_func2(llist[ii],paramopt[0],paramopt[1])
                 if fitindex==3:
                     residual[ii]=psir[ii]-fit_func3(llist[ii],paramopt[0],paramopt[1],paramopt[2])
+                if fitindex==4:     
+                    residual[ii]=psir[ii]-fit_func4(llist[ii],paramopt[0],paramopt[1],paramopt[2],paramopt[3])
 
             #plt.plot(llist,0*llist,'-')
             #plt.plot(llist,residual, label="start l="+str(startindex)+" end l="+str(maxmodefit))
@@ -175,6 +195,11 @@ if 3 in fitindices:
     zvals3 = np.reshape(sumtotalarr[threeindex,:],(len(startindeces),len(finalindices)))
     zvals3_2 = np.reshape(sumtotalarr2[threeindex,:],(len(startindeces),len(finalindices)))
 
+if 4 in fitindices:
+    fourindex=fitindices.index(4)
+    zvals4 = np.reshape(sumtotalarr[fourindex,:],(len(startindeces),len(finalindices)))
+    zvals4_2 = np.reshape(sumtotalarr2[fourindex,:],(len(startindeces),len(finalindices)))
+
 
 if 1 in fitindices:
     if plotnosigma:
@@ -192,6 +217,12 @@ if 3 in fitindices:
     if plotsigma:
         ax.plot_wireframe(startx2,finaly2,zvals3_2,rstride=1,cstride=1,color="purple",label='weights')
 ax.legend(loc='lower left')
+if 4 in fitindices:
+    if plotnosigma:
+        ax.plot_wireframe(startx2,finaly2,zvals4,rstride=1,cstride=1,color="orange",label='4 term')
+    if plotsigma:
+        ax.plot_wireframe(startx2,finaly2,zvals4_2,rstride=1,cstride=1,color="green",label='weights')
+ax.legend(loc='lower left')
 #ax=plt.gca()
 
 #print sumtotalarr
@@ -207,7 +238,7 @@ ax.ticklabel_format(axis="z",style="sci",scilimits=(0,0))
 plt.xlabel("Start l mode")
 plt.ylabel("Final l mode")
 #plt.zlabel("Summed radial self force")
-plt.title("Variation of total radial self force with start and end ponits of fit")
+plt.title("Variation of total radial self force with start and end points of fit")
 plt.show()
 
 

@@ -26,11 +26,11 @@ def ratiofuncprime(alpha, n1, n2, n3, yratio):
    
 def func(n, alpha, ccoeff, finf):
     return finf-ccoeff*np.exp(-alpha*n)
-t0=570
+t0=590
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
 start=0
 step = 1
-fio2=open("finfoutput.csv","a")
+fio2=open("finfoutput590.csv","a")
 
 columnoffset=5
 timecolumn=0

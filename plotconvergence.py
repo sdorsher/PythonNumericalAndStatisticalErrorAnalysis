@@ -25,7 +25,7 @@ def ratiofuncprime(alpha, n1, n2, n3, yratio):
     print ratioderiv
     return ratioderiv
                                                           
-fio=open("coeffsbyl.csv","a")
+fio=open("coeffsbyl590_24_28_32.csv","a")
 columnoffset=5
 timecolumn=0
 #modenum=6

@@ -1,4 +1,4 @@
-
+#This function makes no sense!
 #Read in all orders as well as finf data. Produce plot demonstrating that modes converge. 
 
 from math import *
@@ -88,7 +88,7 @@ maxmodefit=30
 
 
 
-t0 = 570
+t0 = 590
 allindices=np.array(range(0,31,1))
 startindeces=np.array(range(14,20,1))
 finalindices=np.array(range(24,30,1))
@@ -97,7 +97,7 @@ sumtotalarr=np.zeros([len(fitindices),len(startindeces),len(finalindices)])
 startx=np.zeros([len(fitindices),len(startindeces),len(finalindices)])
 finaly=np.zeros([len(fitindices),len(startindeces),len(finalindices)])
 orders=[12,16,20,24,28, 32,36,40,44,0] #not 48,33
-i1=4
+i1=3
 i2=i1+1
 i3=i2+1
 #order 400 is actually infinite

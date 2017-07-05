@@ -19,11 +19,11 @@ def ratiofunc(alpha, n1, n2, n3, yratio):
    
 #def func(n, alpha, ccoeff, finf):
 #    return finf-ccoeff*np.exp(-alpha*n)
-t0=570
+t0=610
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
-start=5
+start=0
 stop=31
-i10=5
+i10=0
 i20=i10+1
 i30=i10+2
 step = 1
@@ -111,39 +111,44 @@ for modenum in range(start,stop,step):
      alphamax=alpha0
      alphamin=1.e-12
      ratiofnreturn=-1.
-     while (ratiofnreturn<0.):
-         alphamax*=1.5
-         ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
-     print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
+     if(yratio>0.5 and yratio<1.0):
+         while (ratiofnreturn<0.):
+             alphamax*=1.5
+             ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
+         print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
 
-     while (ratiofnreturn>0.):
-         alphamin/=2.
-         ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
-     print ratiofnreturn, alphamin, yratio
+         while (ratiofnreturn>0.):
+             alphamin/=2.
+             ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
+         print ratiofnreturn, alphamin, yratio
      
-     alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
-     #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
+         alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
+         #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
      
-     print "alpha= ", alpha
+         print "alpha= ", alpha
      
      
-     ccoeff = (lbestarr[i1]-lbestarr[i2])/(exp(-alpha*orders[i1])-exp(-alpha*orders[i2]))
-     finf = lbestarr[i3]-ccoeff*exp(-alpha*orders[i3])
+         ccoeff = (lbestarr[i1]-lbestarr[i2])/(exp(-alpha*orders[i1])-exp(-alpha*orders[i2]))
+         finf = lbestarr[i3]-ccoeff*exp(-alpha*orders[i3])
      
-     print alpha, ccoeff, finf
-
-
+         print alpha, ccoeff, finf
+     else:
+         finf=lbestarr[len(orders)-1]-8*10**-14
+         print "Mode failed!"
      csvwriter=csv.writer(fio,delimiter=' ')
-     csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
+     if(yratio>0.5 and yratio<1.0):
+         csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
      lpred= np.zeros(len(orderspred))
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
          lbestnew[ii]=abs(lbestarr[ii]-finf)
-     for ii in range(len(orderspred)):
-         lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
+     if(yratio>0.5 and yratio<1.0):
+         for ii in range(len(orderspred)):
+             lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
 
      plt.plot(orders,lbestnew,marker='o',label='Data')
-     plt.plot(orderspred,lpred,marker='^',label='Predicted')
+     if(yratio>0.5 and yratio<1.0):
+         plt.plot(orderspred,lpred,marker='^',label='Predicted')
      plt.plot(orders[i1:i3+1],lbestnew[i1:i3+1],'ro',label="Points used in extrapolation")
      ax=plt.gca()
      ax.set_yscale('log')

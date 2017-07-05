@@ -18,7 +18,7 @@ lcolumn=1
 nummodes=31
 
 startmode=14
-datatable =np.loadtxt("coeffsbyl570.csv", skiprows=startmode)
+datatable =np.loadtxt("coeffsbyl590_24_28_32.csv", skiprows=startmode)
 
 t0 = datatable[0,0]
 llist=datatable[:,lcolumn]
