@@ -55,15 +55,15 @@ maxmodefit=30
 
 #datatable =np.loadtxt("coeffsbyl570_28_32_36.csv")
 #datatable =np.loadtxt("coeffsbyl590_24_28_32.csv")
-datatable =np.loadtxt("coeffsbyl610_12_16_20.csv")
+datatable =np.loadtxt("coeffsbyl610_24_28_32.csv")
 
 t0 = datatable[0,0]
 
 plotnosigma=True
 plotsigma=False
 
-startindeces=np.array(range(14,22,1))
-finalindices=np.array(range(26,31,1))
+startindeces=np.array(range(14,18,1))
+finalindices=np.array(range(22,26,1))
 fitindices=[2,3,4]
 sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
 sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])

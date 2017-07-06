@@ -1,3 +1,5 @@
+#plots convergence toward finf for a given mode based on existing fit parameters. kind of redundant with extrapolate7.py
+
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt

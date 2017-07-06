@@ -23,7 +23,7 @@ t0=610
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
 start=0
 stop=31
-i10=0
+i10=4
 i20=i10+1
 i30=i10+2
 step = 1
@@ -73,21 +73,19 @@ for modenum in range(start,stop,step):
          tstored = list(np.zeros(interporder))
          lstored=list(np.zeros(interporder))
          loadstring=""
-         if((orders[count]==48) or (orders[count]==28)):
+         if(orders[count]==28):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-         elif((orders[count]==36) or (orders[count]==44) or (orders[count]==48)):
+         elif(orders[count]==24):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_restart/psir_l.asc"
+         elif(orders[count]==16 or orders[count]==36 or orders[count]==44):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_2_restart/psir_l.asc"
-         elif(orders[count]==52):
-             loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_rerestart/psir_l.asc"
-         elif(orders[count]==16):
-             loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_2/psir_l.asc"
          elif(orders[count]==20):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-         else:
+         elif(orders[count]==12 or orders[count]==32 or  orders[count]==40):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"/psir_l.asc"
-
+         print orders[count]
          print loadstring
-         
+        
          datatable=np.loadtxt(loadstring,skiprows=1)
          for ii in range(len(datatable[:,timecolumn])):
              if datatable[ii,timecolumn]<t0:
