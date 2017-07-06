@@ -32,7 +32,7 @@ step = 1
 #t0=786.7
 interporder=4
 interpkind='cubic'
-
+fio3=open("bestinfoverinitorder.csv","a")
 
 columnoffset=5
 timecolumn=0
@@ -76,7 +76,7 @@ for modenum in range(start,stop,step):
          i2=i1+1
          i3=i1+2
          fio=open("coeffsbestfinf"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv","a")
-         print "modenum = ", modenum
+         print "modenum = ", modenum, " start order = ", i1
          orderspred=orders[i3+1:] #20 defective? #52 still running, changedir
          datatablelist=list(np.zeros(0))
          tstoredlist=list(np.zeros(0))
@@ -101,7 +101,7 @@ for modenum in range(start,stop,step):
              lstoredlist.append(lstored)
         
          yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
-         print "yratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
+         #print "yratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
          alpha0=0.5
           
          alphamax=alpha0
@@ -111,27 +111,28 @@ for modenum in range(start,stop,step):
              while (ratiofnreturn<0.):
                  alphamax*=1.5
                  ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
-             print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
+             #print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
      
              while (ratiofnreturn>0.):
                  alphamin/=2.
                  ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
-             print ratiofnreturn, alphamin, yratio
+             #print ratiofnreturn, alphamin, yratio
                  
              alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
              #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
             
-             print "alpha= ", alpha
+             #print "alpha= ", alpha
             
           
              ccoeff = (lbestarr[i1]-lbestarr[i2])/(exp(-alpha*orders[i1])-exp(-alpha*orders[i2]))
              finf = lbestarr[i3]-ccoeff*exp(-alpha*orders[i3])
-             print alpha, ccoeff, finf
+             #print alpha, ccoeff, finf
          else:
              alpha=np.nan
              ccoeff=np.nan
              finf=np.nan
              print "Mode failed!"
+
          finfarr[i1]=finf
          csvwriter=csv.writer(fio,delimiter=' ')
          csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
@@ -141,6 +142,14 @@ for modenum in range(start,stop,step):
     ax.set_xlabel("Starting order of extrapolation")
     ax.set_ylabel("Finf")
     plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
-    plt.show()
- 
+    #plt.show()
+    ii=0
+    while((ii<len(finfarr)) and (not np.isnan(finfarr[ii]))):
+        imax=ii
+        finfbest=finfarr[ii]
+        ii+=1
+    print modenum, imax, finfbest
+    csvwriter3=csv.writer(fio3,delimiter=' ')
+    csvwriter3.writerow([modenum, imax, finfbest])
+fio3.close()
 
