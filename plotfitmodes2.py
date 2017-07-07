@@ -22,7 +22,7 @@ def fit_func2(ldata,param1,param2):
     return psir
 
 def fit_func3(ldata,param1,param2,param3):
-    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)+param3/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)
+    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)+param3/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)
     return psir
 
 

@@ -19,7 +19,7 @@ def ratiofunc(alpha, n1, n2, n3, yratio):
    
 #def func(n, alpha, ccoeff, finf):
 #    return finf-ccoeff*np.exp(-alpha*n)
-t0=610
+t0=660
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
 start=0
 stop=31
@@ -32,7 +32,7 @@ step = 1
 #t0=786.7
 interporder=4
 interpkind='cubic'
-fio3=open("bestinfoverinitorder.csv","a")
+fio3=open("bestinfoverinitorder"+str(t0)+".csv","a")
 
 columnoffset=5
 timecolumn=0

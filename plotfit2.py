@@ -4,28 +4,49 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy import optimize
 
+
+
+def fit_func1(ldata,param1):
+    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)
+    return psir
+
+def fit_func2(ldata,param1,param2):
+    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata-3.)/(2.*ldata+5.)
+    return psir
+
+def fit_func3(ldata,param1,param2,param3):
+    psir=param1/(2.*ldata-1.)/(2.*ldata+3.)+param2/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)+param3/(2.*ldata-5.)/(2.*ldata-3.)/(2.*ldata-1.)/(2.*ldata+3.)/(2.*ldata+5.)/(2.*ldata+7.)
+    return psir
+
 def fit_func4(ldata, param1,param2,param3,param4):
     psir=param1/(2*ldata-1)/(2*ldata+3)+param2/(2*ldata-3)/(2*ldata-1)/(2*ldata+3)/(2*ldata+5)+param3/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)+param4/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)/(2*ldata-7)/(2*ldata+9)
     return psir
 
-def fit_func3(ldata,param1,param2,param3):
-    psir=param1/(2*ldata-1)/(2*ldata+3)+param2/(2*ldata-3)/(2*ldata-1)/(2*ldata+3)/(2*ldata+5)+param3/(2*ldata-5)/(2*ldata-3)/(2*ldata-1)/(2*ldata+3)/(2*ldata+5)/(2*ldata+7)
-    return psir
     
-terms = 3
-fit_func=fit_func4
+terms = 2
+fit_func=fit_func2
+if terms==1:
+    fit_func=fit_func1
+if terms==2:
+    fit_func=fit_func2
 if terms==3:
     fit_func=fit_func3
-finfcolumn=4
-lcolumn=1
-nummodes=31
+if terms==4:
+    fit_func=fit_func4
+#finfcolumn=4
+finfcolumn=2
+#lcolumn=1
+lcolumn=0
+nummodes=29
 
-startmode=14
-datatable =np.loadtxt("coeffsbyl610_12_16_20.csv", skiprows=startmode)
+startmode=18
+#datatable =np.loadtxt("coeffsbyl610_12_16_20.csv", skiprows=startmode)
+datatable =np.loadtxt("bestinfoverinitorder.csv")
 
-t0 = datatable[0,0]
-llist=datatable[:,lcolumn]
-psir=datatable[:,finfcolumn]
+#t0 = datatable[0,0]
+t0=610
+llist=datatable[startmode:nummodes,lcolumn]
+psir=datatable[startmode:nummodes,finfcolumn]
 
 errscale=np.zeros(len(llist))
 for ii in range(len(llist)):
@@ -42,6 +63,16 @@ print psir[0], psir[len(psir)-1]
 residual1=np.zeros(len(llist))
 residual2=np.zeros(len(llist))
 residual3=np.zeros(len(llist))
+for ii in range(len(llist)):
+    if terms==1:
+        residual1[ii]=psir[ii]-fit_func(llist[ii],paramopt[0])
+        residual2[ii]=psir[ii]-fit_func(llist[ii],paramopt2[0])
+        residual3[ii]=psir[ii]-fit_func(llist[ii],paramopt3[0])
+for ii in range(len(llist)):
+    if terms==2:
+        residual1[ii]=psir[ii]-fit_func(llist[ii],paramopt[0],paramopt[1])
+        residual2[ii]=psir[ii]-fit_func(llist[ii],paramopt2[0],paramopt2[1])
+        residual3[ii]=psir[ii]-fit_func(llist[ii],paramopt3[0],paramopt3[1])
 for ii in range(len(llist)):
     if terms==3:
         residual1[ii]=psir[ii]-fit_func(llist[ii],paramopt[0],paramopt[1],paramopt[2])

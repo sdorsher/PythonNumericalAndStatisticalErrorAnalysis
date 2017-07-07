@@ -44,8 +44,10 @@ def sum_func4(lmin):
     return lmin/7./(2.*lmin-7.)/(2.*lmin-5.)/(2.*lmin-3.)/(2.*lmin-1.)/(2.*lmin+1.)/(2.*lmin+3.)/(2.*lmin+5.)/(2.*lmin+7.)
 
 minplotnum=2
-finfcolumn=4
-lcolumn=1
+#finfcolumn=4
+#lcolumn=1
+finfcolumn=2
+lcolumn=0
 nummodes=31
 
 #startmode=14
@@ -55,15 +57,19 @@ maxmodefit=30
 
 #datatable =np.loadtxt("coeffsbyl570_28_32_36.csv")
 #datatable =np.loadtxt("coeffsbyl590_24_28_32.csv")
-datatable =np.loadtxt("coeffsbyl610_24_28_32.csv")
+#datatable =np.loadtxt("coeffsbyl610_24_28_32.csv")
+datatable =np.loadtxt("bestinfoverinitorder660.csv")
 
-t0 = datatable[0,0]
+#t0 = datatable[0,0]
+t0 = 660
 
 plotnosigma=True
 plotsigma=False
 
-startindeces=np.array(range(14,18,1))
-finalindices=np.array(range(22,26,1))
+#startindeces=np.array(range(14,18,1))
+#finalindices=np.array(range(22,26,1))
+startindeces=np.array(range(14,20,1))
+finalindices=np.array(range(24,31,1))
 fitindices=[2,3,4]
 sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
 sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
@@ -94,7 +100,9 @@ for fitindex in fitindices:
                 fit_func=fit_func3
             elif fitindex==4:
                 fit_func=fit_func4
+            print fitindex, startindex, maxmodefit,"nosigma"
             paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir)
+            print fitindex, startindex, maxmodefit, "with sigma"
             paramopt2, paramcov2 = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
             partialsum=[]
             partialsum2=[]
@@ -237,8 +245,8 @@ ax.w_zaxis.set_major_formatter(formatter)
 ax.ticklabel_format(axis="z",style="sci",scilimits=(0,0))
 plt.xlabel("Start l mode")
 plt.ylabel("Final l mode")
-#plt.zlabel("Summed radial self force")
-plt.title("Variation of total radial self force with start and end points of fit")
+#plt.zlabel("Total radial self force")
+plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
 plt.show()
 
 
