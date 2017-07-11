@@ -147,8 +147,8 @@ def main(argv):
                 if fitindex>3:
                     extrapolatedsum4 = sum_func4(maxmodefit+1)*paramopt[3]
                     partialsum.append(extrapolatedsum4)
-                    extrapolatedsum1_2=sum_func1(maxmodefit+1)*paramopt2[0]
-                    partialsum2.append(extrapolatedsum1)
+                extrapolatedsum1_2=sum_func1(maxmodefit+1)*paramopt2[0]
+                partialsum2.append(extrapolatedsum1)
                 extrapolatedsum2_2 = 0
                 extrapolatedsum3_2 = 0
                 extrapolatedsum4_2 = 0
