@@ -47,19 +47,25 @@ def sum_func4(lmin):
 
 def main(argv):
 
-    if (len(sys.argv)<4):
-        print "Usage fitcoefftable.py t0 useBestFinf useReducedRange startOrder(opt)"
+    if (len(sys.argv)<7):
+        print "Usage fitcoefftable.py t0 useBestFinf useReducedRange showPlot useAvg termsChosen startOrder(opt)"
         print "\tt0 is the initial time"
         print "\tuseBestFinf is 0 to use Finf based on a certain set of three \n\t\t extrapolation points starting with startOrder.\n\t\tFor useBestFinf=0 run extrapolate7.py first"
         print "\tuseBestFinf is 1 to use Finf selected based on the highest \n\t\t order for which Finf was defined.\n\t\tFor useBestFinf=1 run bestfinfselector.py first."
         print "\tuseReducedRange=0 chooses lmin=14-19 lmax=24-30."
         print "\tuseReducedrange=1 chooses lmin=14-17, lmax=22-25, which avoids roundoff error near periastron"
+        print "\tshowPlot=1 shows the surface plot, showPlot=0 hides it"
+        print "\tuseAvg=1 uses an average over the termsChosen surface to\n\t\testimate the total self force for that time."
+        print "\tuseAvg=0 uses the central point of the terms chosen surface\n\\t\t to estimate the total self force for that time."
         exit()
     t0=int(sys.argv[1])
     useBestFinf=(int(sys.argv[2])==1)
     useReducedRange=(int(sys.argv[3])==1)
-    if(len(sys.argv)==5):
-        startOrder=int(sys.argv[4])
+    showPlot=(int(sys.argv[4])==1)
+    useAvg=(int(sys.argv[5])==1)
+    termsChosen=int(sys.argv[6])
+    if(len(sys.argv)==8):
+        startOrder=int(sys.argv[7])
     minplotnum=2
     #finfcolumn=4
     #lcolumn=1
@@ -125,9 +131,9 @@ def main(argv):
                     fit_func=fit_func3
                 elif fitindex==4:
                     fit_func=fit_func4
-                print fitindex, startindex, maxmodefit,"nosigma"
+                #print fitindex, startindex, maxmodefit,"nosigma"
                 paramopt, paramcov = optimize.curve_fit(fit_func, llist,psir)
-                print fitindex, startindex, maxmodefit, "with sigma"
+                #print fitindex, startindex, maxmodefit, "with sigma"
                 paramopt2, paramcov2 = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
                 partialsum=[]
                 partialsum2=[]
@@ -178,9 +184,9 @@ def main(argv):
                     temp2 = paramopt[2]
                 if fitindex>3:
                     temp3 = paramopt[3]
-                with open('parametertable.dat', 'a') as file:
-                    file.write(str(fitindex)+","+str(startindex)+","+str(maxmodefit)+","+str(sumtotal)+","+str(paramopt[0])+","+str(temp1)+","+str(temp2)+","+str(temp3)+","+str(unextrapolatedsum)+","+str(extrapolatedsum1)+","+str(extrapolatedsum2)+","+str(extrapolatedsum3))
-                    file.write("\n")
+                #with open('parametertable.dat', 'a') as file:
+                #   file.write(str(fitindex)+","+str(startindex)+","+str(maxmodefit)+","+str(sumtotal)+","+str(paramopt[0])+","+str(temp1)+","+str(temp2)+","+str(temp3)+","+str(unextrapolatedsum)+","+str(extrapolatedsum1)+","+str(extrapolatedsum2)+","+str(extrapolatedsum3))
+                #    file.write("\n")
                 #print "params=", paramopt
                 #print "partialsum=",partialsum
             
@@ -213,13 +219,14 @@ def main(argv):
     #ax.scatter(startx, finaly, sumtotalarr2, c='r',marker='^')
     startx2 = np.reshape(startx,(len(startindeces),len(finalindices)))
     finaly2 = np.reshape(finaly,(len(startindeces),len(finalindices)))
+    termChosenIndex=fitindices.index(termsChosen)
     if 1 in fitindices:
         oneindex=fitindices.index(1)
         zvals1 = np.reshape(sumtotalarr[oneindex,:],(len(startindeces),len(finalindices)))
         zvals1_2 = np.reshape(sumtotalarr2[oneindex,:],(len(startindeces),len(finalindices)))
     if 2 in fitindices:
         twoindex=fitindices.index(2)
-        print twoindex
+        #print twoindex
         zvals2 =np.reshape(sumtotalarr[twoindex,:],(len(startindeces),len(finalindices)))
         zvals2_2 =np.reshape(sumtotalarr2[twoindex,:],(len(startindeces),len(finalindices)))
     if 3 in fitindices:
@@ -231,6 +238,15 @@ def main(argv):
         fourindex=fitindices.index(4)
         zvals4 = np.reshape(sumtotalarr[fourindex,:],(len(startindeces),len(finalindices)))
         zvals4_2 = np.reshape(sumtotalarr2[fourindex,:],(len(startindeces),len(finalindices)))
+
+    selfForce=0
+    if(useAvg):
+        selfForce=np.average(sumtotalarr[termChosenIndex,:])
+    else:
+        zvalschosen=np.reshape(sumtotalarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
+        midx=len(startindeces)/2-1
+        midy=len(finalindices)/2-1
+        selfForce=zvalschosen[midx,midy]
 
 
     if 1 in fitindices:
@@ -271,8 +287,10 @@ def main(argv):
     plt.ylabel("Final l mode")
     #plt.zlabel("Total radial self force")
     plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
-    plt.show()
-
-
+    if(showPlot):
+        plt.show()
+    print t0, selfForce
+    return t0, selfForce
+    
 if __name__=="__main__":
     main(sys.argv[1:])

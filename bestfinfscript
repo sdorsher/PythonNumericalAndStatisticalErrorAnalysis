@@ -1,0 +1,26 @@
+#!/bin/bash
+USEAVG=1
+FILENAME2="selfForceOverTime.csv"
+T0INIT=$1
+T0FINAL=$2
+T0STEP=$3
+T0=$T0INIT
+   
+TERMSCHOSEN=3
+USEREDUCEDRANGE=1
+USEBESTFINF=1
+SHOWPLOT=0
+STARTORDER=0 #optional and undefined for USEBESTFINF=1
+FILENAME1A="bestinfoverinitorder"
+FILENAME1C=".csv"
+
+while [ $T0 -le $T0FINAL ]; do
+    FILENAME1B=$T0
+    FILENAME1=$FILENAME1A$FILENAME1B$FILENAME1C
+    echo $FILENAME1
+    if [ ! -f $FILENAME1 ]; then
+	python bestfinfselector.py $T0
+    fi
+    python fitcoefftable.py $T0 $USEBESTFINF $USEREDUCEDRANGE $SHOWPLOT $USEAVG $TERMSCHOSEN $STARTORDER | tee -a $FILENAME2
+    T0=$(($T0+$T0STEP))
+done
