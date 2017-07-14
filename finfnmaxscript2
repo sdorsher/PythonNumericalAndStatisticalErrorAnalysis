@@ -1,0 +1,24 @@
+#!/bin/bash
+#determines maximum order to which data has been created by bestfinfscript and finf values
+
+T0INIT=$1
+T0FINAL=$2
+T0STEP=$3
+PRINTFINFORORDER=$4
+FILENAME1A="bestinfoverinitorder"
+EXTENSION=".csv"
+T0=$T0INIT
+FILENAME2="nmaxFinfOverTime.csv"
+
+
+while [ $T0 -le $T0FINAL ]; do
+    FILENAME1B=$T0
+    FILENAME1=$FILENAME1A$FILENAME1B$EXTENSION
+    echo $FILENAME1
+    python readtimeandprint.py $T0 $FILENAME1 $PRINTFINFORORDER | tee -a $FILENAME2
+    #update values
+    FILENAME1B=$T0
+    FILENAME1=$FILENAME1A$FILENAME1B$EXTENSION
+    T0=$(($T0+$T0STEP))
+done
+

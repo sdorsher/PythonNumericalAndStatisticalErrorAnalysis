@@ -67,10 +67,14 @@ def main(argv):
     if(len(sys.argv)==8):
         startOrder=int(sys.argv[7])
     minplotnum=2
-    #finfcolumn=4
-    #lcolumn=1
-    finfcolumn=2
-    lcolumn=0
+    finfcolumn=4
+    lcolumn=1
+    if(useBestFinf):
+        finfcolumn=2
+        lcolumn=0
+    else:
+        finfcolumn=4
+        lcolumn=1
     nummodes=31
 
     #startmode=14
@@ -104,6 +108,7 @@ def main(argv):
     fitindices=[2,3,4]
     sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
     sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
+    unextrapolatedarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
     startx=np.zeros(len(sumtotalarr[0,:]))
     finaly=np.zeros(len(sumtotalarr[0,:]))
 
@@ -169,6 +174,7 @@ def main(argv):
                     partialsum2.append(extrapolatedsum3)
                 sumtotal=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3+extrapolatedsum4
                 sumtotal2=unextrapolatedsum+extrapolatedsum1_2+extrapolatedsum2_2+extrapolatedsum3_2+extrapolatedsum4_2
+                unextrapolatedarr[fiti,starti*(len(finalindices))+modei]=unextrapolatedsum
                 sumtotalarr[fiti,starti*(len(finalindices))+modei]=sumtotal
                 sumtotalarr2[fiti,starti*(len(finalindices))+modei]=sumtotal2
                 if(fiti==0):
@@ -240,14 +246,21 @@ def main(argv):
         zvals4_2 = np.reshape(sumtotalarr2[fourindex,:],(len(startindeces),len(finalindices)))
 
     selfForce=0
+    selfForce=0
+    unextrapSelfForce=0
     if(useAvg):
         selfForce=np.average(sumtotalarr[termChosenIndex,:])
+        selfForce2=np.average(sumtotalarr2[termChosenIndex,:])
+        unextrapSelfForce=np.average(unextrapolatedarr[termChosenIndex,:])
     else:
         zvalschosen=np.reshape(sumtotalarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
+        zvalschosen2=np.reshape(sumtotalarr2[termChosenIndex,:],(len(startindeces),len(finalindices)))
+        zvalschosenunextrap=np.reshape(unextrapolatedarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
         midx=len(startindeces)/2-1
         midy=len(finalindices)/2-1
         selfForce=zvalschosen[midx,midy]
-
+        selfForce2=zvalschosen2[midx,midy]
+        unextrapSelfForce=zvalschosenunextrap[midx,midy]
 
     if 1 in fitindices:
         if plotnosigma:
@@ -289,8 +302,8 @@ def main(argv):
     plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
     if(showPlot):
         plt.show()
-    print t0, selfForce
-    return t0, selfForce
+    print t0, selfForce, selfForce2, unextrapSelfForce
+    return t0, selfForce, selfForce2, unextrapSelfForce
     
 if __name__=="__main__":
     main(sys.argv[1:])
