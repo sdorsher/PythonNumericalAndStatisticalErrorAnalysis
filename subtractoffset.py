@@ -47,13 +47,15 @@ t0=470
 #t0=786.7
 interporder=4
 interpkind='cubic'
+minmode=4
+maxmode=5
 
-i1=3
+i1=0
 i2=i1+1
 i3=i1+2
 
 
-for modenum in range(4,5):
+for modenum in range(minmode,maxmode):
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
@@ -82,7 +84,7 @@ for modenum in range(4,5):
                  #print(datatable[:,timecolumn])
                  tnearest=datatable[ii,timecolumn]
                  indexnearest=ii
-         print orders[count], indexnearest, interporder, len(datatable[:,timecolumn])
+         #print orders[count], indexnearest, interporder, len(datatable[:,timecolumn])
          for ii in range(interporder):
              tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]
              lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
@@ -107,7 +109,7 @@ for modenum in range(4,5):
      alphalower=0.0-yratio
      alpha0=0.2
 
-     print alphaupper, alphalower, yratio
+     #print alphaupper, alphalower, yratio
      
      #pylab.plot(alpha,ratiofunc(alpha,n1,n2,n3))
      #pylab.show()
@@ -125,13 +127,22 @@ for modenum in range(4,5):
      print alpha, ccoeff, finf
 
 
-     opt_params, param_cov=optimization.curve_fit(errorfunc, orders, lbestarr, p0=np.array([alpha, ccoeff, finf]))
+     #opt_params, param_cov=optimization.curve_fit(errorfunc, orders, lbestarr, p0=np.array([alpha, ccoeff, finf]))
 
-     alpha=opt_params[0]
-     ccoeff=opt_params[1]
-     finf=opt_params[2]
+     #alpha=opt_params[0]
+     #ccoeff=opt_params[1]
+     #finf=opt_params[2]
 
-     print alpha, ccoeff, finf
+     #print alpha, ccoeff, finf
+
+     fio3=open("modesbyorder"+str(t0)+"_l"+str(modenum)+"_i"+str(i1)+".csv","a")
+     for ii in range(len(orders)):
+         csvwriter=csv.writer(fio3,delimiter=' ')
+         csvwriter.writerow([orders[ii],lbestarr[ii]])
+     fio3.close()
+     
+
+
      
      csvwriter=csv.writer(fio,delimiter=' ')
      csvwriter.writerow([modenum,alpha,ccoeff,finf])
@@ -146,7 +157,7 @@ for modenum in range(4,5):
      #ltot=np.concatenate(lbestarr,lpred)
      
      
-     plt.plot(orders,lbestnew, 'o')
+     plt.plot(orders,lbestnew, 'o-')
      #plt.plot(orderspred, lpred, 'x')
      ax=plt.gca()
      ax.set_yscale('log')
@@ -155,9 +166,8 @@ for modenum in range(4,5):
      plt.xlabel('DG order')
      plt.title('Mode l='+str(modenum))
      plt.show()
-     
 fio.close()
-    #fig=plt.plot(orders,abs(lbestarr-bestvals[0]), 'o-')
+#fig=plt.plot(orders,abs(lbestarr-bestvals[0]), 'o-')
 #ax=plt.gca()
 #ax.set_yscale('log')
 #plt.plot(orders, abs(-bestvals[1]*exp(-orders),'--')
