@@ -48,13 +48,13 @@ def sum_func4(lmin):
 def main(argv):
 
     if (len(sys.argv)<7):
-        print "Usage fitcoefftable.py t0 useBestFinf useReducedRange showPlot useAvg termsChosen startOrder(opt)"
+        print "Usage fitcoefftable.py t0 useBestFinf useReducedRange showSurfacePlot useAvg termsChosen startOrder(opt)"
         print "\tt0 is the initial time"
         print "\tuseBestFinf is 0 to use Finf based on a certain set of three \n\t\t extrapolation points starting with startOrder.\n\t\tFor useBestFinf=0 run extrapolate7.py first"
         print "\tuseBestFinf is 1 to use Finf selected based on the highest \n\t\t order for which Finf was defined.\n\t\tFor useBestFinf=1 run bestfinfselector.py first."
         print "\tuseReducedRange=0 chooses lmin=14-19 lmax=24-30."
         print "\tuseReducedrange=1 chooses lmin=14-17, lmax=22-25, which avoids roundoff error near periastron"
-        print "\tshowPlot=1 shows the surface plot, showPlot=0 hides it"
+        print "\tshowSurfacePlot=1 shows the surface plot, showSurfacePlot=0 hides it"
         print "\tuseAvg=1 uses an average over the termsChosen surface to\n\t\testimate the total self force for that time."
         print "\tuseAvg=0 uses the central point of the terms chosen surface\n\\t\t to estimate the total self force for that time."
         exit()

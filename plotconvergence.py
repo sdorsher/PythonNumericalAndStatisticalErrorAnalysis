@@ -27,7 +27,7 @@ def ratiofuncprime(alpha, n1, n2, n3, yratio):
     print ratioderiv
     return ratioderiv
                                                           
-fio=open("coeffsbyl590_24_28_32.csv","a")
+fio=open("coeffsbyl470_36_40_44.csv","r")
 columnoffset=5
 timecolumn=0
 #modenum=6
@@ -35,10 +35,10 @@ timecolumn=0
 nummodes = 31
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
 #orders=[8,16,24,32, 40,56,36,44,28,52,20]#48 bad
-orders=[20,24,28,32,33, 36,40,44]#48 bad
+orders=[12,16,20,24,28,32, 36,40,44]#48 bad
 #[8,16]
 #orderspred=[25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
-orderspred=[36,44,52, 28,20, 48] #20 defective? #52 still running, changedir
+#20 defective? #52 still running, changedir
 t0=200.
 #t0=786.7
 interporder=4
@@ -49,7 +49,7 @@ i2=i1+1
 i3=i1+2
 
 
-for modenum in range(4,6):
+for modenum in range(3,4):
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
@@ -85,7 +85,8 @@ for modenum in range(4,6):
          tstoredlist.append(tstored)
          lstoredlist.append(lstored)
 
-     finf=0
+     #finf=4.15234129804*10**-5
+     finf= 1.68593178728e-05
 
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
@@ -94,7 +95,7 @@ for modenum in range(4,6):
      
      plt.plot(1./np.array(orders),lbestnew, 'o')
      ax=plt.gca()
-
+     ax.set_yscale('log')
      plt.ylabel('Re(dpsi/dr)')
      plt.xlabel('DG order')
      plt.title('Mode l='+str(modenum))

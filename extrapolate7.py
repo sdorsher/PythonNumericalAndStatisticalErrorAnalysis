@@ -19,11 +19,11 @@ def ratiofunc(alpha, n1, n2, n3, yratio):
    
 #def func(n, alpha, ccoeff, finf):
 #    return finf-ccoeff*np.exp(-alpha*n)
-t0=610
+t0=470
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
 start=0
 stop=31
-i10=4
+i10=6
 i20=i10+1
 i30=i10+2
 step = 1

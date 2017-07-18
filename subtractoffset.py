@@ -29,7 +29,7 @@ def errorfunc(order,finf,cl,alpha):
     return finf-cl*np.exp(-alpha*order)
 
 
-fio=open("coeffsbyl.csv","a")
+fio=open("coeffsbyl470_36_40_44.csv","a")
 columnoffset=5
 timecolumn=0
 #modenum=6
@@ -37,23 +37,23 @@ timecolumn=0
 nummodes = 6
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
 #orders=[8,16,24,32, 40,56,36,44,28,48,52,20]
-orders=[20, 24,28, 32,33,36,40,44] #not 48
+orders=[12,16,20, 24,28, 32,36,40,44] #not 48
 #[8,16]
 #orderspred=[25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56
 #orderspred=[36,44, 28,20, 48] #20 defective? #52 still running, changedir
-orderspred=[32,33,36,40,44] #20 defective? #52 still running, changedir
+#orderspred=[32,33,36,40,44] #20 defective? #52 still running, changedir
 #t0=472.721
-t0=600
+t0=470
 #t0=786.7
 interporder=4
 interpkind='cubic'
 
-i1=2
+i1=3
 i2=i1+1
 i3=i1+2
 
 
-for modenum in range(0,6):
+for modenum in range(4,5):
      datatablelist=list(np.zeros(0))
      tstoredlist=list(np.zeros(0))
      lbestarr=np.zeros([len(orders)])
@@ -65,13 +65,15 @@ for modenum in range(0,6):
          tstored = list(np.zeros(interporder))
          lstored=list(np.zeros(interporder))
          loadstring=""
-         if((orders[count]==48) or (orders[count]==28) or (orders[count]==20)):
+         if(orders[count]==28):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-         elif((orders[count]==36) or (orders[count]==44) or (orders[count]==48)):
+         elif(orders[count]==24):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_restart/psir_l.asc"
+         elif(orders[count]==16 or orders[count]==36 or orders[count]==44):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_2_restart/psir_l.asc"
-         elif(orders[count]==52):
-             loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_rerestart/psir_l.asc"
-         else:
+         elif(orders[count]==20):
+             loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
+         elif(orders[count]==12 or orders[count]==32 or  orders[count]==40):
              loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"/psir_l.asc"
          datatable=np.loadtxt(loadstring,skiprows=1)
          print loadstring
@@ -133,19 +135,19 @@ for modenum in range(0,6):
      
      csvwriter=csv.writer(fio,delimiter=' ')
      csvwriter.writerow([modenum,alpha,ccoeff,finf])
-     lpred= np.zeros(len(orderspred))
+     #lpred= np.zeros(len(orderspred))
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
          lbestnew[ii]=abs(lbestarr[ii]-finf)
-     for ii in range(len(orderspred)):
-         lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
+     #for ii in range(len(orderspred)):
+     #    lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
      
      #ordertot=np.concatenate(orders,orderspred)
      #ltot=np.concatenate(lbestarr,lpred)
      
      
      plt.plot(orders,lbestnew, 'o')
-     plt.plot(orderspred, lpred, 'x')
+     #plt.plot(orderspred, lpred, 'x')
      ax=plt.gca()
      ax.set_yscale('log')
      #ax.set_xscale('log')
