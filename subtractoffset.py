@@ -28,8 +28,15 @@ def ratiofuncprime(alpha, n1, n2, n3, yrato):
 def errorfunc(order,finf,cl,alpha):
     return finf-cl*np.exp(-alpha*order)
 
+t0=470
+orders=[12,16,20, 24,28, 32,36,40,44] #not 48
+minmode=3
+maxmode=minmode+1
+i1=0
+i2=i1+1
+i3=i1+2
 
-fio=open("coeffsbyl470_36_40_44.csv","a")
+fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv","a")
 columnoffset=5
 timecolumn=0
 #modenum=6
@@ -37,22 +44,17 @@ timecolumn=0
 nummodes = 6
 datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
 #orders=[8,16,24,32, 40,56,36,44,28,48,52,20]
-orders=[12,16,20, 24,28, 32,36,40,44] #not 48
 #[8,16]
 #orderspred=[25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56
 #orderspred=[36,44, 28,20, 48] #20 defective? #52 still running, changedir
 #orderspred=[32,33,36,40,44] #20 defective? #52 still running, changedir
 #t0=472.721
-t0=470
 #t0=786.7
 interporder=4
 interpkind='cubic'
-minmode=4
-maxmode=5
 
-i1=0
-i2=i1+1
-i3=i1+2
+
+
 
 
 for modenum in range(minmode,maxmode):

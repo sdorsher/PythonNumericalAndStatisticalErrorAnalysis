@@ -19,16 +19,16 @@ def ratiofunc(alpha, n1, n2, n3, yratio):
    
 #def func(n, alpha, ccoeff, finf):
 #    return finf-ccoeff*np.exp(-alpha*n)
-t0=470
+t0=634
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
-start=0
-stop=31
+start=2
+stop=3
 i10=6
 i20=i10+1
 i30=i10+2
 step = 1
-fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
-fio2=open("selfforceallmodes.csv","a")
+#fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
+#fio2=open("selfforceallmodes.csv","a")
 
 columnoffset=5
 timecolumn=0
@@ -133,9 +133,9 @@ for modenum in range(start,stop,step):
      else:
          finf=lbestarr[len(orders)-1]-8*10**-14
          print "Mode failed!"
-     csvwriter=csv.writer(fio,delimiter=' ')
-     if(yratio>0.5 and yratio<1.0):
-         csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
+     #csvwriter=csv.writer(fio,delimiter=' ')
+     #if(yratio>0.5 and yratio<1.0):
+         #csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
      lpred= np.zeros(len(orderspred))
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
@@ -156,11 +156,11 @@ for modenum in range(start,stop,step):
      plt.title('l='+str(modenum)+", extrapolated from orders "+str(orders[i1])+", "+str(orders[i2])+", and "+str(orders[i3]))
      plt.show()    
 
-fio.close()
-for count in range(len(orders)):
-    for modenum in range(start,stop,step):
-        csvwriter2=csv.writer(fio2,delimiter=' ')
-        csvwriter2.writerow(np.append([orders[count]],psirarr[count,:]))
+#fio.close()
+#for count in range(len(orders)):
+#    for modenum in range(start,stop,step):
+        #csvwriter2=csv.writer(fio2,delimiter=' ')
+        #csvwriter2.writerow(np.append([orders[count]],psirarr[count,:]))
         
-fio2.close()
+#fio2.close()
 
