@@ -67,10 +67,12 @@ def main(argv):
     if(len(sys.argv)==8):
         startOrder=int(sys.argv[7])
     minplotnum=2
-    finfcolumn=4
+    #finfcolumn=4
+    finfcolumn=3
     lcolumn=1
     if(useBestFinf):
-        finfcolumn=2
+        finfcolumn=3 # 2 min 3 max 4 med
+        #finfcolumn=2
         lcolumn=0
     else:
         finfcolumn=4
