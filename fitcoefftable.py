@@ -248,12 +248,18 @@ def main(argv):
         zvals4_2 = np.reshape(sumtotalarr2[fourindex,:],(len(startindeces),len(finalindices)))
 
     selfForce=0
-    selfForce=0
+    selfForce2=0
     unextrapSelfForce=0
+    stdSF1=0
+    stdSF2=0
+    stdUSF=0
     if(useAvg):
         selfForce=np.average(sumtotalarr[termChosenIndex,:])
         selfForce2=np.average(sumtotalarr2[termChosenIndex,:])
         unextrapSelfForce=np.average(unextrapolatedarr[termChosenIndex,:])
+        stdSF1=np.std(sumtotalarr[termChosenIndex,:])
+        stdSF2=np.std(sumtotalarr2[termChosenIndex,:])
+        stdUSF=np.std(unextrapolatedarr[termChosenIndex,:])
     else:
         zvalschosen=np.reshape(sumtotalarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
         zvalschosen2=np.reshape(sumtotalarr2[termChosenIndex,:],(len(startindeces),len(finalindices)))
@@ -304,8 +310,8 @@ def main(argv):
     plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
     if(showPlot):
         plt.show()
-    print t0, selfForce, selfForce2, unextrapSelfForce
-    return t0, selfForce, selfForce2, unextrapSelfForce
+    print t0, selfForce, selfForce2, unextrapSelfForce, stdSF1, stdSF2, stdUSF
+    return t0, selfForce, selfForce2, unextrapSelfForce, stdSF1, stdSF2, stdUSF
     
 if __name__=="__main__":
     main(sys.argv[1:])
