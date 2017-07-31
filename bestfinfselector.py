@@ -156,13 +156,23 @@ def main(argv):
         plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
         #plt.show()
         ii=0
-        while((ii<len(finfarr)) and (not np.isnan(finfarr[ii]))):
-            imax=ii
-            finfbest=finfarr[ii]
-            ii+=1
-        print modenum, imax, finfbest
+        finfsum=0.
+        sumcount=0
+        #take median of array:
+        finfs=finfarr[~np.isnan(finfarr)]
+        finfssort=np.sort(finfs)
+        lenfinf=len(finfssort)
+        mid=int(int(lenfinf)/int(2))
+        oddfinf=lenfinf % 2
+        bestfinf=0.
+        if(oddfinf==1):
+            bestfinf=finfssort[mid]
+        else:
+            bestfinf=(finfssort[mid]+finfssort[mid-1])/2.
+            
+        print modenum, len(finfssort), min(finfssort), max(finfssort), bestfinf
         csvwriter3=csv.writer(fio3,delimiter=' ')
-        csvwriter3.writerow([modenum, imax, finfbest])
+        csvwriter3.writerow([modenum, len(finfssort), min(finfssort), max(finfssort), bestfinf])
     fio3.close()
     
 if __name__=="__main__":
