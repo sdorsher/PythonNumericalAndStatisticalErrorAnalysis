@@ -84,6 +84,8 @@ def main(argv):
     
     for modenum in range(start,stop,step):
         finfarr=np.zeros(len(orders)-2)
+        overall_best_chisq_dof=0
+        overall_best_i1=0
         for i1 in range(0,len(orders)-2):
              i2=i1+1
              i3=i1+2
@@ -144,7 +146,36 @@ def main(argv):
                  ccoeff=np.nan
                  finf=np.nan
                  print "Mode failed!"
-    
+
+             best_chisq_dof=0
+             best_start=0
+             best_end=0
+             if(~np.isnan(finf)):
+                 for lbeststartindex in range(len(lbestarr)-2):
+                     for lbestendindex in range(lbeststartindex+3,len(lbestarr)+1):
+                         orderstrunc=orders[lbeststartindex:lbestendindex]
+                         lbestarrtrunc=lbestarr[lbeststartindex:lbestendindex]
+                         loglbestarrtrunc=np.log(abs(lbestarrtrunc-finf))
+                         
+                         forders,residuals,rank,sing,rcond=np.polyfit(orderstrunc,loglbestarrtrunc,1,full=True)
+                         #plt.xlabel("DG order")
+                         #plt.ylabel("Log(Radial self force)")
+                         #plt.title("Determining the best starting index by fitting line segments")
+                         #plt.plot(orderstrunc,loglbestarrtrunc, marker='o',label="Data")
+                         #plt.plot(orderstrunc,np.polyval(forders,orderstrunc), label="Linear least squares fit")
+                         #plt.legend(loc='lower left')
+                         #plt.show()
+                         chisq_dof=residuals/(len(orderstrunc)-2)
+                         #print chisq_dof
+                         if (abs(best_chisq_dof-1))>(abs(chisq_dof-1)):
+                             best_chisq_dof=chisq_dof
+                             best_start=lbeststartindex
+                             best_end=lbestendindex
+             #print best_chisq_dof, best_start,best_end
+             if (abs(overall_best_chisq_dof-1))>(abs(best_chisq_dof-1)):
+                  overall_best_chisq_dof=best_chisq_dof
+                  best_i1=i1
+             
              finfarr[i1]=finf
              csvwriter=csv.writer(fio,delimiter=' ')
              csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
@@ -159,6 +190,7 @@ def main(argv):
         finfsum=0.
         sumcount=0
         #take median of array:
+        
         finfs=finfarr[~np.isnan(finfarr)]
         finfssort=np.sort(finfs)
         lenfinf=len(finfssort)
@@ -170,9 +202,9 @@ def main(argv):
         else:
             bestfinf=(finfssort[mid]+finfssort[mid-1])/2.
             
-        print modenum, len(finfssort), min(finfssort), max(finfssort), bestfinf
+        print modenum, len(finfssort), min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]
         csvwriter3=csv.writer(fio3,delimiter=' ')
-        csvwriter3.writerow([modenum, len(finfssort), min(finfssort), max(finfssort), bestfinf])
+        csvwriter3.writerow([modenum, len(finfssort), min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]])
     fio3.close()
     
 if __name__=="__main__":

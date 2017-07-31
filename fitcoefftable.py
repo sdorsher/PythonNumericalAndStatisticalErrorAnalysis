@@ -71,7 +71,7 @@ def main(argv):
     finfcolumn=3
     lcolumn=1
     if(useBestFinf):
-        finfcolumn=3 # 2 min 3 max 4 med
+        finfcolumn=6 # 2 min 3 max 4 med 6 fit method finf
         #finfcolumn=2
         lcolumn=0
     else:
