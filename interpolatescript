@@ -1,0 +1,18 @@
+#!/bin/bash
+T0INITIAL=$1
+T0FINAL=$2
+T0STEP=$3
+T0=$T0INITIAL
+FILENAME1A="rawinterpdatat"
+FILENAME1C=".csv"
+
+
+while [ $T0 -le $T0FINAL ]; do
+    FILENAME1B=$T0
+    FILENAME1=$FILENAME1A$FILENAME1B$FILENAME1C
+    echo $FILENAME1
+    if [ ! -f $FILENAME1 ]; then
+	python interpolateandprint.py $T0 
+    fi
+    T0=$(($T0+$T0STEP))
+done
