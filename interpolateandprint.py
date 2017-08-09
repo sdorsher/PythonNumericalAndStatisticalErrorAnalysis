@@ -12,7 +12,7 @@ def main(argv):
           print "Usage python interpolateandprint.py t0"
           print "t0 is the time to which the data should be interpolated"
           exit()
-     t0=sys.argv[1]
+     t0=int(sys.argv[1])
      #def func(n, alpha, ccoeff, finf):
      #    return finf-ccoeff*np.exp(-alpha*n)
      orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
@@ -87,11 +87,10 @@ def main(argv):
               datatable=np.loadtxt(loadstring,skiprows=1)
               print datatable.shape, t0
               for ii in range(len(datatable[:,timecolumn])):
-                  if (datatable[ii,timecolumn]<t0):
+                   if (datatable[ii,timecolumn]<t0):
                        tnearest=datatable[ii,timecolumn]
                        indexnearest=ii
-                       print datatable[ii,timecolumn], t0
-              #print orders[count], indexnearest, interporder, len(datatable[:,timecolumn])
+                       #print orders[count], indexnearest, interporder, len(datatable[:,timecolumn])
               for ii in range(interporder):
                   tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]
                   lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
@@ -104,7 +103,7 @@ def main(argv):
      
          
           csvwriter=csv.writer(fio,delimiter=' ')
-          csvwriter.writerow(np.append(lbestarr,psirarr[:,modenum-start]))    
+          csvwriter.writerow(np.append(np.array([modenum]),lbestarr))    
      
 if __name__=="__main__":
     main(sys.argv[:1])

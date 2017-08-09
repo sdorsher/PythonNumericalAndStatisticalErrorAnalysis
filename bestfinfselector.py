@@ -185,7 +185,7 @@ def main(argv):
         ax.set_xlabel("Starting order of extrapolation")
         ax.set_ylabel("Finf")
         plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
-        #plt.show()
+        plt.show()
         ii=0
         finfsum=0.
         sumcount=0
