@@ -110,7 +110,7 @@ def main(argv):
     fitindices=[2,3,4]
     sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
     sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
-    unextrapolatedarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
+    unextrapolatedarr=np.zeros([len(startindeces)*len(finalindices)])
     startx=np.zeros(len(sumtotalarr[0,:]))
     finaly=np.zeros(len(sumtotalarr[0,:]))
 
@@ -176,7 +176,9 @@ def main(argv):
                     partialsum2.append(extrapolatedsum3)
                 sumtotal=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3+extrapolatedsum4
                 sumtotal2=unextrapolatedsum+extrapolatedsum1_2+extrapolatedsum2_2+extrapolatedsum3_2+extrapolatedsum4_2
-                unextrapolatedarr[fiti,starti*(len(finalindices))+modei]=unextrapolatedsum
+                # unextrapoladearr should be the same for all fiti since the fit is not involved
+                if(fiti==0):
+                    unextrapolatedarr[starti*(len(finalindices))+modei]=unextrapolatedsum
                 sumtotalarr[fiti,starti*(len(finalindices))+modei]=sumtotal
                 sumtotalarr2[fiti,starti*(len(finalindices))+modei]=sumtotal2
                 if(fiti==0):
@@ -256,20 +258,19 @@ def main(argv):
     if(useAvg):
         selfForce=np.average(sumtotalarr[termChosenIndex,:])
         selfForce2=np.average(sumtotalarr2[termChosenIndex,:])
-        unextrapSelfForce=np.average(unextrapolatedarr[termChosenIndex,:])
+        unextrapSelfForce=np.average(unextrapolatedarr[:])
         stdSF1=np.std(sumtotalarr[termChosenIndex,:])
         stdSF2=np.std(sumtotalarr2[termChosenIndex,:])
-        stdUSF=np.std(unextrapolatedarr[termChosenIndex,:])
+        stdUSF=np.std(unextrapolatedarr)
     else:
         zvalschosen=np.reshape(sumtotalarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
         zvalschosen2=np.reshape(sumtotalarr2[termChosenIndex,:],(len(startindeces),len(finalindices)))
-        zvalschosenunextrap=np.reshape(unextrapolatedarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
+        zvalschosenunextrap=np.reshape(unextrapolatedarr[:],(len(startindeces),len(finalindices)))
         midx=len(startindeces)/2-1
         midy=len(finalindices)/2-1
         selfForce=zvalschosen[midx,midy]
         selfForce2=zvalschosen2[midx,midy]
         unextrapSelfForce=zvalschosenunextrap[midx,midy]
-
     if 1 in fitindices:
         if plotnosigma:
             ax.plot_wireframe(startx2,finaly2,zvals1,rstride=1,cstride=1,color="red",label='1 term')
