@@ -110,25 +110,27 @@ def main(argv):
     fitindices=[2,3,4]
     sumtotalarr=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
     sumtotalarr2=np.zeros([len(fitindices),len(startindeces)*len(finalindices)])
-    unextrapolatedarr=np.zeros([len(startindeces)*len(finalindices)])
     startx=np.zeros(len(sumtotalarr[0,:]))
     finaly=np.zeros(len(sumtotalarr[0,:]))
+    unextraparr=np.zeros([len(startindeces),len(finalindices)])
 
 
-
-    fiti=0
-    for fitindex in fitindices:
-        starti=0
-        for startindex in startindeces:
-            modei=0
-            for maxmodefit in finalindices:
-                llist=datatable[startindex:maxmodefit,lcolumn]
-                psir=datatable[startindex:maxmodefit,finfcolumn]
-
-                sigmaweights=np.zeros(len(llist))
-                for ii in range(len(llist)):
-                    sigmaweights[ii]=llist[ii]**-2.
-    
+    starti=0
+    for startindex in startindeces:
+        modei=0
+        for maxmodefit in finalindices:
+            llist=datatable[startindex:maxmodefit,lcolumn]
+            psir=datatable[startindex:maxmodefit,finfcolumn]
+            
+            sigmaweights=np.zeros(len(llist))
+            for ii in range(len(llist)):
+                sigmaweights[ii]=llist[ii]**-2.
+            psirtosum=np.sum(datatable[0:maxmodefit+1,finfcolumn])
+            unextrapolatedsum=np.sum(psirtosum)
+            unextraparr[starti,modei]=unextrapolatedsum
+            fiti=0
+            for fitindex in fitindices:
+                
                 fit_func=fit_func1
                 if fitindex==1:
                     fit_func=fit_func1
@@ -144,8 +146,6 @@ def main(argv):
                 paramopt2, paramcov2 = optimize.curve_fit(fit_func, llist,psir,sigma=sigmaweights)
                 partialsum=[]
                 partialsum2=[]
-                psirtosum=np.sum(datatable[0:maxmodefit+1,finfcolumn])
-                unextrapolatedsum=np.sum(psirtosum)
                 extrapolatedsum1=sum_func1(maxmodefit+1)*paramopt[0]
                 partialsum.append(extrapolatedsum1)
                 extrapolatedsum2 = 0
@@ -177,8 +177,6 @@ def main(argv):
                 sumtotal=unextrapolatedsum+extrapolatedsum1+extrapolatedsum2+extrapolatedsum3+extrapolatedsum4
                 sumtotal2=unextrapolatedsum+extrapolatedsum1_2+extrapolatedsum2_2+extrapolatedsum3_2+extrapolatedsum4_2
                 # unextrapoladearr should be the same for all fiti since the fit is not involved
-                if(fiti==0):
-                    unextrapolatedarr[starti*(len(finalindices))+modei]=unextrapolatedsum
                 sumtotalarr[fiti,starti*(len(finalindices))+modei]=sumtotal
                 sumtotalarr2[fiti,starti*(len(finalindices))+modei]=sumtotal2
                 if(fiti==0):
@@ -220,9 +218,10 @@ def main(argv):
                 #plt.xlabel('l mode')
                 #plt.title('Radial self force fit residuals, t=' + str(t0))
                 #', starting from l=' + str(startmode))
-                modei+=1
-            starti+=1
-        fiti+=1
+                fiti+=1
+            modei+=1
+        starti+=1
+
     fig=plt.figure()
     ax=plt.axes(projection='3d')
     #ax.scatter(startx, finaly,sumtotalarr, c='b', marker='o')
@@ -251,26 +250,22 @@ def main(argv):
 
     selfForce=0
     selfForce2=0
-    unextrapSelfForce=0
     stdSF1=0
     stdSF2=0
     stdUSF=0
     if(useAvg):
         selfForce=np.average(sumtotalarr[termChosenIndex,:])
         selfForce2=np.average(sumtotalarr2[termChosenIndex,:])
-        unextrapSelfForce=np.average(unextrapolatedarr[:])
         stdSF1=np.std(sumtotalarr[termChosenIndex,:])
         stdSF2=np.std(sumtotalarr2[termChosenIndex,:])
-        stdUSF=np.std(unextrapolatedarr)
+        stdSFU=np.std(unextraparr)
     else:
         zvalschosen=np.reshape(sumtotalarr[termChosenIndex,:],(len(startindeces),len(finalindices)))
         zvalschosen2=np.reshape(sumtotalarr2[termChosenIndex,:],(len(startindeces),len(finalindices)))
-        zvalschosenunextrap=np.reshape(unextrapolatedarr[:],(len(startindeces),len(finalindices)))
         midx=len(startindeces)/2-1
         midy=len(finalindices)/2-1
         selfForce=zvalschosen[midx,midy]
         selfForce2=zvalschosen2[midx,midy]
-        unextrapSelfForce=zvalschosenunextrap[midx,midy]
     if 1 in fitindices:
         if plotnosigma:
             ax.plot_wireframe(startx2,finaly2,zvals1,rstride=1,cstride=1,color="red",label='1 term')
@@ -311,8 +306,8 @@ def main(argv):
     plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
     if(showPlot):
         plt.show()
-    print t0, selfForce, selfForce2, unextrapSelfForce, stdSF1, stdSF2, stdUSF
-    return t0, selfForce, selfForce2, unextrapSelfForce, stdSF1, stdSF2, stdUSF
+    print t0, selfForce, selfForce2, unextrapolatedsum, stdSF1, stdSF2, stdUSF
+    return t0, selfForce, selfForce2, unextrapolatedsum, stdSF1, stdSF2, stdUSF
     
 if __name__=="__main__":
     main(sys.argv[1:])
