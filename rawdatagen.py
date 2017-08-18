@@ -81,9 +81,10 @@ for count in range(0,len(orders)):
 
 sumOverModes=np.sum(psirarr[count,:])
 
-#datatowrite=np.append([modenum],psirarr[:,modenum])
-datatowrite=psirarr
-datatowrite.tofile("genrawdata"+str(t0)+".csv",sep=' ', format='%10.5f')
-
+with open("genrawdata"+str(t0)+".csv","a") as csvfile:
+    csvwriter=csv.writer(csvfile, delimiter=' ')
+    for modenum in range(0,stop,step):
+        datatowrite=np.append([modenum],psirarr[:,modenum])
+        csvwriter.writerow(datatowrite)
 
 print sumOverModes
