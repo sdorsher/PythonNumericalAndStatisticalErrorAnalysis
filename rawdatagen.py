@@ -10,11 +10,11 @@ import pylab
 
 
 ti=380
-tf=390
+tf=690
 tstep=10
 
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
-stop=30
+stop=31
 step = 1
 #fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
 #fio2=open("selfforceallmodes.csv","a")
