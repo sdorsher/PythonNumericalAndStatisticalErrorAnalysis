@@ -42,7 +42,11 @@ interpkind='cubic'
 
 lbestarr=np.zeros([len(orders),stop+1])
 psirarr=np.zeros([len(orders),stop+1])
+numt=int((tf+tstep-ti)/tstep)
+sumOverModes=np.zeros([numt, len(orders)])
 
+
+tindex=0
 for t0 in range(ti,tf+tstep,tstep):
         
 
@@ -86,12 +90,17 @@ for t0 in range(ti,tf+tstep,tstep):
             lbestarr[count,modenum]=lbest
             psirarr[count,modenum]=lbest    
 
-    sumOverModes=np.sum(psirarr[count,:])
+        sumOverModes[tindex,count]=np.sum(psirarr[count,:])
     
     with open("genrawdata"+str(t0)+".csv","a") as csvfile:
         csvwriter=csv.writer(csvfile, delimiter=' ')
         for modenum in range(0,stop,step):
             datatowrite=np.append([modenum],psirarr[:,modenum])
             csvwriter.writerow(datatowrite)
-        
-    print sumOverModes
+    tindex+=1        
+            
+with open("genrawsummodes.csv","a") as csvfile2:
+    csvwriter2=csv.writer(csvfile2, delimiter=' ')
+    for tindex in range(len(sumOverModes[:,0])):
+            datatowrite2=np.append([ti+tstep*tindex],sumOverModes[tindex,:])
+            csvwriter2.writerow(datatowrite2)
