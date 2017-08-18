@@ -9,7 +9,10 @@ import pylab
 
 
 
-t0=380
+ti=380
+tf=390
+tstep=10
+
 orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
 stop=30
 step = 1
@@ -40,51 +43,55 @@ interpkind='cubic'
 lbestarr=np.zeros([len(orders),stop+1])
 psirarr=np.zeros([len(orders),stop+1])
 
-datatablelist=list(np.zeros(0))
-for count in range(0,len(orders)):
-    if(orders[count]==28):
-        loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-    elif(orders[count]==24):
-        loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_restart/psir_l.asc"
-    elif(orders[count]==16 or orders[count]==36 or orders[count]==44):
-        loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_2_restart/psir_l.asc"
-    elif(orders[count]==20):
-        loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-    elif(orders[count]==12 or orders[count]==32 or  orders[count]==40):
-        loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"/psir_l.asc"
-    print orders[count]
-    print loadstring
-    datatable=np.loadtxt(loadstring,skiprows=1)
-
-    for modenum in range(0,stop,step):
-        print "modenum = ", modenum
-        tnearest=0.0
-        indexnearest=0
-        lbest=0
-        tstored = list(np.zeros(interporder))
-        lstored=list(np.zeros(interporder))
-        loadstring=""
-
+for t0 in range(ti,tf+tstep,tstep):
         
-        for ii in range(len(datatable[:,timecolumn])):
-            if datatable[ii,timecolumn]<t0:
-                tnearest=datatable[ii,timecolumn]
-                indexnearest=ii
+
+
+    datatablelist=list(np.zeros(0))
+    for count in range(0,len(orders)):
+        if(orders[count]==28):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
+        elif(orders[count]==24):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_restart/psir_l.asc"
+        elif(orders[count]==16 or orders[count]==36 or orders[count]==44):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_2_restart/psir_l.asc"
+        elif(orders[count]==20):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
+        elif(orders[count]==12 or orders[count]==32 or  orders[count]==40):
+            loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"/psir_l.asc"
+        print orders[count]
+        print loadstring
+        datatable=np.loadtxt(loadstring,skiprows=1)
+    
+        for modenum in range(0,stop,step):
+            print "modenum = ", modenum
+            tnearest=0.0
+            indexnearest=0
+            lbest=0
+            tstored = list(np.zeros(interporder))
+            lstored=list(np.zeros(interporder))
+            loadstring=""
+            
+        
+            for ii in range(len(datatable[:,timecolumn])):
+                if datatable[ii,timecolumn]<t0:
+                    tnearest=datatable[ii,timecolumn]
+                    indexnearest=ii
                
-        for ii in range(interporder):
-            tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]
-            lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
-        func=interp1d(tstored,lstored,kind=interpkind)
-        lbest=func(t0)
-        lbestarr[count,modenum]=lbest
-        psirarr[count,modenum]=lbest    
+            for ii in range(interporder):
+                tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]
+                lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
+            func=interp1d(tstored,lstored,kind=interpkind)
+            lbest=func(t0)
+            lbestarr[count,modenum]=lbest
+            psirarr[count,modenum]=lbest    
 
-sumOverModes=np.sum(psirarr[count,:])
-
-with open("genrawdata"+str(t0)+".csv","a") as csvfile:
-    csvwriter=csv.writer(csvfile, delimiter=' ')
-    for modenum in range(0,stop,step):
-        datatowrite=np.append([modenum],psirarr[:,modenum])
-        csvwriter.writerow(datatowrite)
-
-print sumOverModes
+    sumOverModes=np.sum(psirarr[count,:])
+    
+    with open("genrawdata"+str(t0)+".csv","a") as csvfile:
+        csvwriter=csv.writer(csvfile, delimiter=' ')
+        for modenum in range(0,stop,step):
+            datatowrite=np.append([modenum],psirarr[:,modenum])
+            csvwriter.writerow(datatowrite)
+        
+    print sumOverModes
