@@ -10,10 +10,10 @@ import pylab
 
 
 ti=380
-tf=380
+tf=390
 tstep=10
 
-orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
+orders=[16, 20, 24,28, 32,36,40,44] #not 48,33
 #stop=1
 stop=31
 step = 1
@@ -88,10 +88,12 @@ for t0 in range(ti,tf+tstep,tstep):
                
             for ii in range(interporder):
                 lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
-
-
+                
+                
             func=interp1d(tstored,lstored,kind=interpkind)
             lbest=func(t0)
+            print "--------"
+            print tstored
             print lstored
             print lbest
             lbestarr[count,modenum]=lbest

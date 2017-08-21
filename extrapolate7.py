@@ -12,9 +12,11 @@ import pylab
 #    alpha=Fclapha[2]
 #    return(ydata-cl*exp(-alpha*xdata))
 
-def ratiofunc(alpha, n1, n2, n3, yratio):
-    return exp(4*alpha)/(1+exp(4*alpha))-yratio
-    #return exp(-alpha*n2)*(exp(alpha*n1)-exp(n2*alpha))/(exp(alpha*(n1-n3))-1)-yratio
+def ratiofunc(alpha, n1, n2, n3, hratio):
+
+    return exp(-alpha*n2)*(exp(alpha*n1)-exp(alpha*n2))/(1-exp(alpha*(n1-n3)))
+    #return exp(4*alpha)/(1+exp(4*alpha))-hratio
+    
     
    
 #def func(n, alpha, ccoeff, finf):
@@ -102,26 +104,26 @@ for modenum in range(start,stop,step):
          tstoredlist.append(tstored)
          lstoredlist.append(lstored)
      
-     yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
-     print "yratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
+     hratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
+     print "hratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], hratio
      alpha0=0.5
      
      alphamax=alpha0
      alphamin=1.e-12
      ratiofnreturn=-1.
-     if(yratio>0.5 and yratio<1.0):
+     if(hratio>0.5 and hratio<1.0):
          while (ratiofnreturn<0.):
              alphamax*=1.5
-             ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
-         print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
+             ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],hratio)
+         print ratiofnreturn, alphamax, hratio, orders[i1], orders[i2], orders[i3]
 
          while (ratiofnreturn>0.):
              alphamin/=2.
-             ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
-         print ratiofnreturn, alphamin, yratio
+             ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],hratio)
+         print ratiofnreturn, alphamin, hratio
      
-         alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
-         #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
+         alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],hratio))
+         #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],hratio),fprime2=None
      
          print "alpha= ", alpha
      
@@ -134,18 +136,18 @@ for modenum in range(start,stop,step):
          finf=lbestarr[len(orders)-1]-8*10**-14
          print "Mode failed!"
      #csvwriter=csv.writer(fio,delimiter=' ')
-     #if(yratio>0.5 and yratio<1.0):
+     #if(hratio>0.5 and hratio<1.0):
          #csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
      lpred= np.zeros(len(orderspred))
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
          lbestnew[ii]=abs(lbestarr[ii]-finf)
-     if(yratio>0.5 and yratio<1.0):
+     if(hratio>0.5 and hratio<1.0):
          for ii in range(len(orderspred)):
              lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
 
      plt.plot(orders,lbestnew,marker='o',label='Data')
-     if(yratio>0.5 and yratio<1.0):
+     if(hratio>0.5 and hratio<1.0):
          plt.plot(orderspred,lpred,marker='^',label='Predicted')
      plt.plot(orders[i1:i3+1],lbestnew[i1:i3+1],'ro',label="Points used in extrapolation")
      ax=plt.gca()
