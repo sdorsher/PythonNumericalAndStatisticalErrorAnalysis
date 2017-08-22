@@ -9,8 +9,8 @@ import pylab
 
 
 
-ti=380
-tf=390
+ti=370
+tf=690
 tstep=10
 
 orders=[16, 20, 24,28, 32,36,40,44] #not 48,33
@@ -53,8 +53,8 @@ for t0 in range(ti,tf+tstep,tstep):
 
 
     datatablelist=list(np.zeros(0))
-    #for count in range(0,len(orders)):
-    for count in range(0,1):
+    for count in range(0,len(orders)):
+    #for count in range(0,1):
         tstored = list(np.zeros(interporder))
         tnearest=0.0
         indexnearest=0
@@ -81,7 +81,7 @@ for t0 in range(ti,tf+tstep,tstep):
         for ii in range(interporder):
             tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]   
         for modenum in range(0,stop,step):
-            print "modenum = ", modenum
+            #print "modenum = ", modenum
             lbest=0
             lstored=list(np.zeros(interporder))
             loadstring=""
@@ -92,10 +92,10 @@ for t0 in range(ti,tf+tstep,tstep):
                 
             func=interp1d(tstored,lstored,kind=interpkind)
             lbest=func(t0)
-            print "--------"
-            print tstored
-            print lstored
-            print lbest
+            #print "--------"
+            #print tstored
+            #print lstored
+            #print lbest
             lbestarr[count,modenum]=lbest
             psirarr[count,modenum]=lbest    
 
@@ -103,8 +103,8 @@ for t0 in range(ti,tf+tstep,tstep):
     
     with open("genrawdata"+str(t0)+".csv","a") as csvfile:
         csvwriter=csv.writer(csvfile, delimiter=' ')
-        for modenum in range(0,stop,step):
-            datatowrite=np.append([modenum],psirarr[:,modenum])
+        for modenum2 in range(0,stop,step):
+            datatowrite=np.append([modenum2],psirarr[:,modenum2])
             csvwriter.writerow(datatowrite)
     tindex+=1        
             
