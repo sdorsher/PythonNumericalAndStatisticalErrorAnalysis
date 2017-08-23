@@ -125,8 +125,10 @@ def main(argv):
             sigmaweights=np.zeros(len(llist))
             for ii in range(len(llist)):
                 sigmaweights[ii]=llist[ii]**-2.
-            psirtosum=np.sum(datatable[0:maxmodefit+1,finfcolumn])
+            psirtosum=datatable[0:maxmodefit+1,finfcolumn]
             unextrapolatedsum=np.sum(psirtosum)
+            psirtosumfullrange=datatable[:,finfcolumn]
+            unextrapolatedsumfullrange=np.sum(psirtosumfullrange)
             unextraparr[starti,modei]=unextrapolatedsum
             fiti=0
             for fitindex in fitindices:
@@ -306,8 +308,8 @@ def main(argv):
     plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
     if(showPlot):
         plt.show()
-    print t0, selfForce, selfForce2, unextrapolatedsum, stdSF1, stdSF2, stdUSF
-    return t0, selfForce, selfForce2, unextrapolatedsum, stdSF1, stdSF2, stdUSF
+    print t0, selfForce, selfForce2, unextrapolatedsum, unextrapolatedsumfullrange, stdSF1, stdSF2, stdUSF
+    return t0, selfForce, selfForce2, unextrapolatedsum, unextrapolatedsumfullrange, stdSF1, stdSF2, stdUSF
     
 if __name__=="__main__":
     main(sys.argv[1:])

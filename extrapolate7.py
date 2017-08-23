@@ -5,6 +5,7 @@ from scipy.interpolate import interp1d
 import scipy.optimize as optimization
 import csv
 import pylab
+import math
 
 #def truncfunc(Flclalpha, xdata, ydata):
 #    Fl=Flclalpha[0]
@@ -14,22 +15,24 @@ import pylab
 
 def ratiofunc(alpha, n1, n2, n3, hratio):
 
-    return exp(-alpha*n2)*(exp(alpha*n1)-exp(alpha*n2))/(1-exp(alpha*(n1-n3)))
+    return (exp(alpha*(n2-n1))-1)/(1-exp(alpha*(n2-n3)))-hratio
     #return exp(4*alpha)/(1+exp(4*alpha))-hratio
     
     
    
 #def func(n, alpha, ccoeff, finf):
 #    return finf-ccoeff*np.exp(-alpha*n)
-t0=370
-orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
+t0=450
+#steps of four
+#orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
+orders=[16, 20, 24,28, 32,36,40,44] #not 48,33
 start=3
 stop=start+1
-i10=1
+i10=0
 i20=i10+1
 i30=i10+2
 step = 1
-#fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
+fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
 #fio2=open("selfforceallmodes.csv","a")
 
 columnoffset=5
@@ -104,16 +107,20 @@ for modenum in range(start,stop,step):
          tstoredlist.append(tstored)
          lstoredlist.append(lstored)
      
-     hratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
+     hratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i2]-lbestarr[i3])
      print "hratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], hratio
-     alpha0=0.5
+
+     #alpha=0.25*log(hratio)
+     alpha0=0.25*log(hratio)
      
      alphamax=alpha0
-     alphamin=1.e-12
+     alphamin=alpha0
      ratiofnreturn=-1.
-     if(hratio>0.5 and hratio<1.0):
+     if(hratio>-1.0):
+     #if(hratio>0.5 and hratio<1.0): 
          while (ratiofnreturn<0.):
              alphamax*=1.5
+             #print alphamax, ratiofnreturn
              ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],hratio)
          print ratiofnreturn, alphamax, hratio, orders[i1], orders[i2], orders[i3]
 
@@ -123,21 +130,22 @@ for modenum in range(start,stop,step):
          print ratiofnreturn, alphamin, hratio
      
          alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],hratio))
-         #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],hratio),fprime2=None
+         
      
          print "alpha= ", alpha
-     
-     
+    
+         
          ccoeff = (lbestarr[i1]-lbestarr[i2])/(exp(-alpha*orders[i1])-exp(-alpha*orders[i2]))
          finf = lbestarr[i3]-ccoeff*exp(-alpha*orders[i3])
-     
+         
          print alpha, ccoeff, finf
      else:
-         finf=lbestarr[len(orders)-1]-8*10**-14
+         finf=math.nan
+         #lbestarr[len(orders)-1]-8*10**-14
          print "Mode failed!"
-     #csvwriter=csv.writer(fio,delimiter=' ')
-     #if(hratio>0.5 and hratio<1.0):
-         #csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
+     csvwriter=csv.writer(fio,delimiter=' ')
+     if(hratio>0.5 and hratio<1.0):
+         csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
      lpred= np.zeros(len(orderspred))
      lbestnew=np.zeros(len(lbestarr))
      for ii in range(len(lbestarr)):
@@ -146,19 +154,19 @@ for modenum in range(start,stop,step):
          for ii in range(len(orderspred)):
              lpred[ii]=abs(ccoeff*exp(-alpha*orderspred[ii]))
 
-     plt.plot(orders,lbestnew,marker='o',label='Data')
-     if(hratio>0.5 and hratio<1.0):
-         plt.plot(orderspred,lpred,marker='^',label='Predicted')
-     plt.plot(orders[i1:i3+1],lbestnew[i1:i3+1],'ro',label="Points used in extrapolation")
-     ax=plt.gca()
-     ax.set_yscale('log')
-     ax.legend(loc='lower left')
-     plt.xlabel('DG order')
-     plt.ylabel('Radial self force minus Finf')
-     plt.title('l='+str(modenum)+", extrapolated from orders "+str(orders[i1])+", "+str(orders[i2])+", and "+str(orders[i3]))
-     plt.show()    
+     #plt.semilogy(orders,lbestnew,marker='o',label='Data')
+     #if(hratio>0.5 and hratio<1.0):
+         #plt.plot(orderspred,lpred,marker='^',label='Predicted')
+     #plt.semilogy(orders[i1:i3+1],lbestnew[i1:i3+1],'ro',label="Points used in extrapolation")
+     #ax=plt.gca()
+     #ax.set_yscale('log')
+     #ax.legend(loc='lower left')
+     #plt.xlabel('DG order')
+     #plt.ylabel('Radial self force minus Finf')
+     #plt.title('l='+str(modenum)+", extrapolated from orders "+str(orders[i1])+", "+str(orders[i2])+", and "+str(orders[i3]))
+     #plt.show()    
 
-#fio.close()
+fio.close()
 #for count in range(len(orders)):
 #    for modenum in range(start,stop,step):
         #csvwriter2=csv.writer(fio2,delimiter=' ')

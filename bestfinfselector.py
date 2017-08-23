@@ -14,7 +14,9 @@ import sys, getopt, cmath, os
 #    return(ydata-cl*exp(-alpha*xdata))
 
 def ratiofunc(alpha, n1, n2, n3, yratio):
-    return exp(4*alpha)/(1+exp(4*alpha))-yratio
+
+    return (exp(alpha*(n2-n1))-1)/(1-exp(alpha*(n2-n3)))-yratio
+    #return exp(4*alpha)/(1+exp(4*alpha))-yratio
     #return exp(-alpha*n2)*(exp(alpha*n1)-exp(n2*alpha))/(exp(alpha*(n1-n3))-1)-yratio
     
 def main(argv):
@@ -32,7 +34,7 @@ def main(argv):
     print sys.argv[0], sys.argv[1]
     t0=int(sys.argv[1])
     print t0
-    orders=[12,16, 20, 24,28, 32,36,40,44] #not 48,33
+    orders=[16, 20, 24,28, 32,36,40,44] #not 48,33
     start=0
     stop=31
     i10=0
@@ -91,7 +93,7 @@ def main(argv):
              i3=i1+2
              fio=open("coeffsbestfinf"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv","a")
              print "modenum = ", modenum, " start order = ", i1
-             orderspred=orders[i3+1:] #20 defective? #52 still running, changedir
+             orderspred=orders[(i3+1):] #20 defective? #52 still running, changedir
              datatablelist=list(np.zeros(0))
              tstoredlist=list(np.zeros(0))
              lbestarr=np.zeros([len(orders)])
@@ -114,23 +116,27 @@ def main(argv):
                  tstoredlist.append(tstored)
                  lstoredlist.append(lstored)
             
-             yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i1]-lbestarr[i3])
+             yratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i2]-lbestarr[i3])
              #print "yratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], yratio
-             alpha0=0.5
+             #alpha0=0.5
+             alpha0=0.25*log(yratio)
               
              alphamax=alpha0
-             alphamin=1.e-12
+             alphamin=alpha0
+             #alphamin=1.e-12
              ratiofnreturn=-1.
-             if(yratio>0.5 and yratio<1.0):
+             #if(yratio>0.5 and yratio<1.0):
+             if(yratio>-1.0):
                  while (ratiofnreturn<0.):
                      alphamax*=1.5
+                     print alphamax, ratiofnreturn
                      ratiofnreturn=ratiofunc(alphamax,orders[i1],orders[i2],orders[i3],yratio)
-                 #print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
-         
+                 print ratiofnreturn, alphamax, yratio, orders[i1], orders[i2], orders[i3]
+                 #ratiofnreturn=-1.
                  while (ratiofnreturn>0.):
                      alphamin/=2.
                      ratiofnreturn=ratiofunc(alphamin,orders[i1],orders[i2],orders[i3],yratio)
-                 #print ratiofnreturn, alphamin, yratio
+                 print ratiofnreturn, alphamin, yratio
                      
                  alpha =optimization.bisect(ratiofunc,alphamin,alphamax,args=(orders[i1],orders[i2],orders[i3],yratio))
                  #fprime=ratiofuncprime, tol=1e-14,args=(orders[i1],orders[i2],orders[i3],yratio),fprime2=None
