@@ -74,9 +74,12 @@ def main(t0in,startorder,showplot,writedata,start,stop):
         
         hratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i2]-lbestarr[i3])
         print "hratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], hratio
-   
-        alpha0=0.25*log(hratio)
-        
+
+        alpha0=0
+        if(hratio>0.):
+            alpha0=0.25*log(hratio)
+        else:
+            alpha0=1.
         alphamax=alpha0
         alphamin=alpha0
         ratiofnreturn=-1.
@@ -143,7 +146,7 @@ def main(t0in,startorder,showplot,writedata,start,stop):
            #csvwriter2.writerow(np.append([orders[count]],psirarr[count,:]))
            
            #fio2.close()
-    if(len(sys.argv)==6):
+    if(stop-start==1):
         return alpha, ccoeff, finf
     else:
         return outputarr
