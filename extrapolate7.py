@@ -52,9 +52,10 @@ def main(argv):
     step = 1
     fio=open("garbagefile.csv","a")
     if(showplot==0):
+        print "opening file"
         fio=open("coeffsbyl"+str(t0)+"_"+str(orders[i10])+"_"+str(orders[i20])+"_"+str(orders[i30])+".csv","a")
     csvwriter=csv.writer(fio,delimiter=' ')
-        
+    print "defining csvwriter"    
     columnoffset=5
     timecolumn=0
     nummodes = 6
@@ -122,12 +123,14 @@ def main(argv):
             print alpha, ccoeff, finf
         else:
             finf=math.nan
-            print "Mode failed!"
+            ccoeff=math.nan
+            alpha=math.nan
+            print "Mode and order failed!"
 
         if (showplot==0):
-            if(hratio>0.5 and hratio<1.0):
+            if(hratio>-1.):
                 csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
-
+                print "writing to file"
         lpred= np.zeros(len(orderspred))
         lbestnew=np.zeros(len(lbestarr))
         for ii in range(len(lbestarr)):
