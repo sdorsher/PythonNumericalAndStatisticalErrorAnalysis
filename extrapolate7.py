@@ -81,41 +81,15 @@ def main(argv):
         lbestarr=np.zeros([len(orders)])
         psirarr=np.zeros([len(orders),stop-start])
         lstoredlist=list(np.zeros(0))
-        for count in range(len(orders)):
-            tnearest=0.0
-            indexnearest=0
-            lbest=0
-            tstored = list(np.zeros(interporder))
-            lstored=list(np.zeros(interporder))
-            loadstring=""
-            if(orders[count]==28):
-                loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-            elif(orders[count]==24):
-               loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_3_restart/psir_l.asc"
-            elif(orders[count]==16 or orders[count]==36 or orders[count]==44):
-                loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_2_restart/psir_l.asc"
-            elif(orders[count]==20):
-                loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"_restart/psir_l.asc"
-            elif(orders[count]==12 or orders[count]==32 or  orders[count]==40):
-                loadstring="/mnt/data/sdorsher/Fortranp9.9e0.1n"+str(orders[count])+"/psir_l.asc"
-            print orders[count]
-            print loadstring
+        loadstring=""
+        loadstring="genrawdata"+str(t0)+".csv"
+        print loadstring
            
-            datatable=np.loadtxt(loadstring,skiprows=1)
-            for ii in range(len(datatable[:,timecolumn])):
-                if datatable[ii,timecolumn]<t0:
-                    tnearest=datatable[ii,timecolumn]
-                    indexnearest=ii
-            #print orders[count], indexnearest, interporder, len(datatable[:,timecolumn])
-            for ii in range(interporder):
-                tstored[ii]=datatable[indexnearest-(interporder-1)/2+ii,timecolumn]
-                lstored[ii]=datatable[indexnearest-(interporder-1)/2+ii, columnoffset+modenum]
-            func=interp1d(tstored,lstored,kind=interpkind)
-            lbest=func(t0)
-            lbestarr[count]=lbest
-            psirarr[count,modenum-start]=lbest    
-            tstoredlist.append(tstored)
-            lstoredlist.append(lstored)
+        datatable=np.loadtxt(loadstring)
+                        
+        lbestarr=datatable[modenum,1:]
+        #psirarr=datatable    
+        
         
         hratio=(lbestarr[i1]-lbestarr[i2])/(lbestarr[i2]-lbestarr[i3])
         print "hratio=", lbestarr[i1], lbestarr[i2], lbestarr[i3], hratio
