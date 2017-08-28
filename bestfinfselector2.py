@@ -104,12 +104,32 @@ def main(argv):
             #csvwriter=csv.writer(fio,delimiter=' ')
             #csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
             #fio.close()
-        plt.plot(orders[:len(orders)-2],finfarr,'o-')
+        #plt.plot(orders[:len(orders)-2],finfarr,'o-')
+        #ax=plt.gca()
+        #ax.set_xlabel("Starting order of extrapolation")
+        #ax.set_ylabel("Finf")
+        #plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
+        #plt.show()
+
+        ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i1]))
+        print ydata.shape
+        ydata2=ydata.flatten()
+        print ydata2.shape
+        orders2=np.array(orders)
+        print orders2.shape
+        orders3=orders2.flatten()
+        print orders3.shape
+        plt.semilogy(orders3,ydata2,'o-',label="Best choice Psir-Finf")
+        plt.semilogy(orders3[best_i1:best_i1+3],ydata2[best_i1:best_i1+3],'ro',label="Points used in extrapolation")
         ax=plt.gca()
-        ax.set_xlabel("Starting order of extrapolation")
-        ax.set_ylabel("Finf")
-        plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
+        ax.set_xlabel("DG order")
+        ax.set_ylabel("|Psir-Finf|")
+        ax.legend(loc='lower left')
+        plt.title("Radial self force with Finf subtracted for l="+str(modenum)+", t="+str(t0))
         plt.show()
+
+
+        
         ii=0
         finfsum=0.
         sumcount=0
