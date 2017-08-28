@@ -38,95 +38,97 @@ def main(argv):
     print t0
     orders=[16, 20, 24,28, 32,36,40,44] #not 48,33
     start=0
-    stop=31
+    stop=4
     i10=0
     
     step = 1
     fio3=open("bestinfoverinitorder"+str(t0)+".csv","a")
     loadstring = "genrawdata"+str(t0)+".csv"
+
     print loadstring
     datatable=np.loadtxt(loadstring)
+    if(len(orders)!=datatable.shape[1]-1):
+        print "wrong orders included in genrawdata"
+        print datatable.shape
+        print len(orders)
+        exit()
     
     
     columnoffset=5
     timecolumn=0
     nummodes = 6
-    for count in range(len(orders)):
-        tnearest=0.0
-        indexnearest=0
-        lbest=0
-        for modenum in range(datatable.shape[1]):
-            lbestarr=datatable[modenum,1:]
-            finfarr=np.zeros(len(orders)-2)
-            overall_best_chisq_dof=0
-            overall_best_i1=0
-            for i1 in range(0,len(orders)-2):
-                i2=i1+1
-                i3=i1+2
-                #loadtxt="coeffsbyl"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv","a"
-                alpha, ccoeff, finf = extrap7main(t0,orders[i1],0,0,modenum,modenum+1)
-                print "modenum = ", modenum, " start order = ", i1
-                #orderspred=orders[(i3+1):] #20 defective? #52 still running, changedir
+    for modenum in range(datatable.shape[0]):
+        lbestarr=datatable[modenum,1:]
+        finfarr=np.zeros(len(orders)-2)
+        overall_best_chisq_dof=0
+        overall_best_i1=0
+        for i1 in range(0,len(orders)-2):
+            i2=i1+1
+            i3=i1+2
+            #loadtxt="coeffsbyl"+str(t0)+"_"+str(orders[i1])+"_"+str(orders[i2])+"_"+str(orders[i3])+".csv","a"
+            alpha, ccoeff, finf = extrap7main(t0,orders[i1],0,0,modenum,modenum+1)
+            print "modenum = ", modenum, " start order = ", i1
+            #orderspred=orders[(i3+1):] #20 defective? #52 still running, changedir
  
 
-                best_chisq_dof=0
-                best_start=0
-                best_end=0
-                if(~np.isnan(finf)):
-                    for lbeststartindex in range(len(lbestarr)-2):
-                        for lbestendindex in range(lbeststartindex+3,len(lbestarr)+1):
-                            orderstrunc=orders[lbeststartindex:lbestendindex]
-                            lbestarrtrunc=lbestarr[lbeststartindex:lbestendindex]
-                            loglbestarrtrunc=np.log(abs(lbestarrtrunc-finf))
+            best_chisq_dof=0
+            best_start=0
+            best_end=0
+            if(~np.isnan(finf)):
+                for lbeststartindex in range(len(lbestarr)-2):
+                    for lbestendindex in range(lbeststartindex+3,len(lbestarr)+1):
+                        orderstrunc=orders[lbeststartindex:lbestendindex]
+                        lbestarrtrunc=lbestarr[lbeststartindex:lbestendindex]
+                        loglbestarrtrunc=np.log(abs(lbestarrtrunc-finf))
                          
-                            forders,residuals,rank,sing,rcond=np.polyfit(orderstrunc,loglbestarrtrunc,1,full=True)
-                            #plt.xlabel("DG order")
-                            #plt.ylabel("Log(Radial self force)")
-                            #plt.title("Determining the best starting index by fitting line segments")
-                            #plt.plot(orderstrunc,loglbestarrtrunc, marker='o',label="Data")
-                            #plt.plot(orderstrunc,np.polyval(forders,orderstrunc), label="Linear least squares fit")
-                            #plt.legend(loc='lower left')
-                            #plt.show()
-                            chisq_dof=residuals/(len(orderstrunc)-2)
-                            #print chisq_dof
-                            if (abs(best_chisq_dof-1))>(abs(chisq_dof-1)):
-                                best_chisq_dof=chisq_dof
-                                best_start=lbeststartindex
-                                best_end=lbestendindex
-                                #print best_chisq_dof, best_start,best_end
-                if (abs(overall_best_chisq_dof-1))>(abs(best_chisq_dof-1)):
-                    overall_best_chisq_dof=best_chisq_dof
-                    best_i1=i1
-                  
-                finfarr[i1]=finf
-                #csvwriter=csv.writer(fio,delimiter=' ')
-                #csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
-                #fio.close()
-            plt.plot(orders[:len(orders)-2],finfarr,'o-')
-            ax=plt.gca()
-            ax.set_xlabel("Starting order of extrapolation")
-            ax.set_ylabel("Finf")
-            plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
-            plt.show()
-            ii=0
-            finfsum=0.
-            sumcount=0
-            #take median of array:
+                        forders,residuals,rank,sing,rcond=np.polyfit(orderstrunc,loglbestarrtrunc,1,full=True)
+                        #plt.xlabel("DG order")
+                        #plt.ylabel("Log(Radial self force)")
+                        #plt.title("Determining the best starting index by fitting line segments")
+                        #plt.plot(orderstrunc,loglbestarrtrunc, marker='o',label="Data")
+                        #plt.plot(orderstrunc,np.polyval(forders,orderstrunc), label="Linear least squares fit")
+                        #plt.legend(loc='lower left')
+                        #plt.show()
+                        chisq_dof=residuals/(len(orderstrunc)-2)
+                        #print chisq_dof
+                        if (abs(best_chisq_dof-1))>(abs(chisq_dof-1)):
+                            best_chisq_dof=chisq_dof
+                            best_start=lbeststartindex
+                            best_end=lbestendindex
+                            #print best_chisq_dof, best_start,best_end
+            if (abs(overall_best_chisq_dof-1))>(abs(best_chisq_dof-1)):
+                overall_best_chisq_dof=best_chisq_dof
+                best_i1=i1
+                
+            finfarr[i1]=finf
+            #csvwriter=csv.writer(fio,delimiter=' ')
+            #csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
+            #fio.close()
+        plt.plot(orders[:len(orders)-2],finfarr,'o-')
+        ax=plt.gca()
+        ax.set_xlabel("Starting order of extrapolation")
+        ax.set_ylabel("Finf")
+        plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
+        plt.show()
+        ii=0
+        finfsum=0.
+        sumcount=0
+        #take median of array:
+        
+        finfs=finfarr[~np.isnan(finfarr)]
+        finfssort=np.sort(finfs)
+        lenfinf=len(finfssort)
+        mid=int(int(lenfinf)/int(2))
+        oddfinf=lenfinf % 2
+        bestfinf=0.
+        if(oddfinf==1):
+            bestfinf=finfssort[mid]
+        else:
+            bestfinf=(finfssort[mid]+finfssort[mid-1])/2.
             
-            finfs=finfarr[~np.isnan(finfarr)]
-            finfssort=np.sort(finfs)
-            lenfinf=len(finfssort)
-            mid=int(int(lenfinf)/int(2))
-            oddfinf=lenfinf % 2
-            bestfinf=0.
-            if(oddfinf==1):
-                bestfinf=finfssort[mid]
-            else:
-                bestfinf=(finfssort[mid]+finfssort[mid-1])/2.
-            
-            print modenum, min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]
-            csvwriter3=csv.writer(fio3,delimiter=' ')
-            csvwriter3.writerow([modenum, min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]])
+        print modenum, min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]
+        csvwriter3=csv.writer(fio3,delimiter=' ')
+        csvwriter3.writerow([modenum, min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]])
     fio3.close()
     
 if __name__=="__main__":
