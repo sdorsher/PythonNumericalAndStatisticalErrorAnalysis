@@ -61,7 +61,7 @@ def main(argv):
         lbestarr=datatable[modenum,1:]
         finfarr=np.zeros(len(orders)-2)
         overall_best_chisq_dof=0
-        overall_best_i1=0
+        overall_best_i2=0
         finfs=np.zeros(len(orders)-2)
         for i1 in range(0,len(orders)-2):
             i2=i1+1
@@ -73,30 +73,33 @@ def main(argv):
  
             finfarr[i1]=finf
 
-        print finfarr
         #find the starting index of the longest contiguous sub array
         start_i_sub=[]
         end_i_sub=[]
         truish = ~np.isnan(finfarr)
         print truish
         for ii in range(len(finfarr)-1):
-            if(ii==0 and truish[1]):
+            if(ii==0 and truish[0]):
                 start_i_sub.append(0)
-            elif ((ii==len(finfarr)-2) and truish[ii+1]):
+            if ((ii==len(finfarr)-2) and truish[ii+1]):
                 end_i_sub.append(ii+1)
-            elif( (not truish[ii]) and truish[ii+1]):
+            if( (not truish[ii]) and truish[ii+1]):
                 start_i_sub.append(ii+1)
-            elif (truish[ii] and  (not truish[ii+1])):
+            if (truish[ii] and  (not truish[ii+1])):
                 end_i_sub.append(ii)
 
         #print start_i_sub
         #print end_i_sub
-                
+        print start_i_sub
+        print end_i_sub
+
+        
         if (len(start_i_sub)!=len(end_i_sub)):
             print len(start_i_sub), len(end_i_sub), "start and end don't match"
             exit()
 
         #now that I've found the pairs of sub array indices, find the longest such pair
+
         len_sub=0
         best_start_sub=0
         best_end_sub=0
@@ -110,48 +113,55 @@ def main(argv):
 
         deriv=1
         secondderiv=-1
-        best_i1=0
+        best_i2=0
         jj=best_start_sub+1
         
-        ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i1]))
-        ydata2=ydata.flatten()
+
+        fdata=finfarr.flatten()
         orders2=np.array(orders)
-        orders3=orders2.flatten()
+        orders3=orders2.flatten()        
+        forders=orders2[1:len(orders)-1]
 
         print best_start_sub, best_end_sub, len_sub
 
         if (len_sub >= 5):
-            
+            print "case 5 or more"
         
             while ((deriv*secondderiv<0) and jj<best_end_sub):
                 #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
-                ym1=ydata2[jj-1]
-                yp1=ydata2[jj+1]
-                y0=ydata2[jj]
-                hdenom=orders3[jj]-orders3[jj-1]
-                print ydata2.shape, orders3.shape, ym1, yp1, y0, orders3[jj], orders3[jj-1], hdenom 
-                deriv=(ydata2[jj]-ydata2[jj-1])/(orders3[jj]-orders3[jj-1])
-                secondderiv=(ydata2[jj+1]-2*ydata2[jj]+ydata2[jj-1])/(orders3[jj]-orders3[jj-1])**2
-                best_i1=jj-1
+                deriv=(fdata[jj+1]-fdata[jj-1])/(forders[jj+1]-forders[jj-1])*2
+                secondderiv=(fdata[jj+1]-2*fdata[jj]+fdata[jj-1])*4/(forders[jj+1]-forders[jj-1])**2
+                best_i2=jj+1
                 jj+=1
+                print deriv, secondderiv
             
         elif (len_sub==1):
-            best_i1=best_end_sub
+            print "case 1"
+            best_i2=best_end_sub
         elif(len_sub==2):
-            best_i1=best_end_sub
+            print "case 2"
+            best_i2=best_end_sub
         elif(len_sub==3):
-            best_i1=(best_end_sub+best_start_sub)/2+best_start_sub
+            print "case 3"
+            best_i2=(best_end_sub+best_start_sub)/2
         elif(len_sub==4):
+            print "case 4"
             #find average value and take value closest to average (this is case like plateau usually)
-            datatoaverage=ydata[best_start_sub:best_end_sub+1]
+            datatoaverage=fdata[best_start_sub:best_end_sub+1]
             avg1 = np.average(datatoaverage)
             std1=np.std(datatoaverage)
             mymask = (np.abs(datatoaverage-avg1)>3*std1)
-            data2toavg=masked_array(data=datatoaverage, mask=mymask)
-            avg2=data2toavg.mean()
+            datavetoedtoavg=ma.masked_array(data=datatoaverage, mask=mymask)
+            avg2=datavetoedtoavg.mean()
             #find nearest value see bookmarked page
+            #count on the fact that finf will not be order 1 and fill with 1's
+            vetoeddata=datavetoedtoavg.filled([1.])
+            #select best index based on smallest deviation from average based on vetoed data
+            best_i2=(np.abs(vetoeddata-avg2)).argmin()
             #TODO
-            
+        else:
+            print "no order passed for this mode, l=" + str(modenum)+ ", t=" +str(t0)
+            exit()
         #plt.plot(orders[:len(orders)-2],finfarr,'o-')
         #ax=plt.gca()
         #ax.set_xlabel("Starting order of extrapolation")
@@ -159,9 +169,13 @@ def main(argv):
         #plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
         #plt.show()
 
+        print best_i2
 
+        
+        ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i2-1]))
+        ydata2=ydata.flatten()
         plt.semilogy(orders3,ydata2,'o-',label="Best choice Psir-Finf")
-        plt.semilogy(orders3[best_i1:best_i1+3],ydata2[best_i1:best_i1+3],'ro',label="Points used in extrapolation")
+        plt.semilogy(orders3[best_i2-1:best_i2+2],ydata2[best_i2-1:best_i2+2],'ro',label="Points used in extrapolation")
         ax=plt.gca()
         ax.set_xlabel("DG order")
         ax.set_ylabel("|Psir-Finf|")
@@ -171,25 +185,9 @@ def main(argv):
 
 
         
-        ii=0
-        finfsum=0.
-        sumcount=0
-        #take median of array:
-        
-        finfs=finfarr[~np.isnan(finfarr)]
-        finfssort=np.sort(finfs)
-        lenfinf=len(finfssort)
-        mid=int(int(lenfinf)/int(2))
-        oddfinf=lenfinf % 2
-        bestfinf=0.
-        if(oddfinf==1):
-            bestfinf=finfssort[mid]
-        else:
-            bestfinf=(finfssort[mid]+finfssort[mid-1])/2.
-            
-        print modenum, min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]
+        print modenum, len_sub, best_i2-1, finfarr[best_i2-1]
         csvwriter3=csv.writer(fio3,delimiter=' ')
-        csvwriter3.writerow([modenum, min(finfssort), max(finfssort), bestfinf, best_i1, finfarr[best_i1]])
+        csvwriter3.writerow([modenum, len_sub, best_i2-1, finfarr[best_i2-1]])
     fio3.close()
     
 if __name__=="__main__":
