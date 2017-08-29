@@ -7,7 +7,8 @@ import csv
 import pylab
 import sys, getopt, cmath, os
 from extrapolate7 import main as extrap7main
-
+import numpy.ma as ma
+#masked array
 
 #def truncfunc(Flclalpha, xdata, ydata):
 #    Fl=Flclalpha[0]
@@ -101,7 +102,7 @@ def main(argv):
         best_end_sub=0
         for ii in range(len(start_i_sub)):
             len_this_sub=end_i_sub[ii]-start_i_sub[ii]+1
-            if(len_this_sub>len_sub):
+            if(len_this_sub>=len_sub):
                 len_sub=len_this_sub
                 best_start_sub=start_i_sub[ii]
                 best_end_sub=end_i_sub[ii]
@@ -111,26 +112,46 @@ def main(argv):
         secondderiv=-1
         best_i1=0
         jj=best_start_sub+1
-        nanbit=False
-
+        
         ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i1]))
         ydata2=ydata.flatten()
         orders2=np.array(orders)
         orders3=orders2.flatten()
+
+        print best_start_sub, best_end_sub, len_sub
+
+        if (len_sub >= 5):
+            
         
-        print best_start_sub, best_end_sub
-        while ((deriv*secondderiv<0) and jj<best_end_sub):
-            #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
-            ym1=ydata2[jj-1]
-            yp1=ydata2[jj+1]
-            y0=ydata2[jj]
-            hdenom=orders3[jj]-orders3[jj-1]
-            print ydata2.shape, orders3.shape, ym1, yp1, y0, orders3[jj], orders3[jj-1], hdenom 
-            deriv=(ydata2[jj]-ydata2[jj-1])/(orders3[jj]-orders3[jj-1])
-            secondderiv=(ydata2[jj+1]-2*ydata2[jj]+ydata2[jj-1])/(orders3[jj]-orders3[jj-1])**2
-            best_i1=jj
-            jj+=1
-                    
+            while ((deriv*secondderiv<0) and jj<best_end_sub):
+                #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
+                ym1=ydata2[jj-1]
+                yp1=ydata2[jj+1]
+                y0=ydata2[jj]
+                hdenom=orders3[jj]-orders3[jj-1]
+                print ydata2.shape, orders3.shape, ym1, yp1, y0, orders3[jj], orders3[jj-1], hdenom 
+                deriv=(ydata2[jj]-ydata2[jj-1])/(orders3[jj]-orders3[jj-1])
+                secondderiv=(ydata2[jj+1]-2*ydata2[jj]+ydata2[jj-1])/(orders3[jj]-orders3[jj-1])**2
+                best_i1=jj-1
+                jj+=1
+            
+        elif (len_sub==1):
+            best_i1=best_end_sub
+        elif(len_sub==2):
+            best_i1=best_end_sub
+        elif(len_sub==3):
+            best_i1=(best_end_sub+best_start_sub)/2+best_start_sub
+        elif(len_sub==4):
+            #find average value and take value closest to average (this is case like plateau usually)
+            datatoaverage=ydata[best_start_sub:best_end_sub+1]
+            avg1 = np.average(datatoaverage)
+            std1=np.std(datatoaverage)
+            mymask = (np.abs(datatoaverage-avg1)>3*std1)
+            data2toavg=masked_array(data=datatoaverage, mask=mymask)
+            avg2=data2toavg.mean()
+            #find nearest value see bookmarked page
+            #TODO
+            
         #plt.plot(orders[:len(orders)-2],finfarr,'o-')
         #ax=plt.gca()
         #ax.set_xlabel("Starting order of extrapolation")
