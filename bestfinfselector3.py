@@ -103,14 +103,14 @@ def main(argv):
             len_this_sub=end_i_sub[ii]-start_i_sub[ii]+1
             if(len_this_sub>len_sub):
                 len_sub=len_this_sub
-                best_start_sub=start_i_sub
-                best_end_sub=end_i_sub
+                best_start_sub=start_i_sub[ii]
+                best_end_sub=end_i_sub[ii]
         
 
         deriv=1
         secondderiv=-1
         best_i1=0
-        jj=best_start_sub
+        jj=best_start_sub+1
         nanbit=False
 
         ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i1]))
@@ -119,9 +119,13 @@ def main(argv):
         orders3=orders2.flatten()
         
         print best_start_sub, best_end_sub
-        while ((deriv*secondderiv<0) and jj<=best_end_sub):
+        while ((deriv*secondderiv<0) and jj<best_end_sub):
             #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
-            print ydata2.shape, orders3.shape, ydata2[jj]
+            ym1=ydata2[jj-1]
+            yp1=ydata2[jj+1]
+            y0=ydata2[jj]
+            hdenom=orders3[jj]-orders3[jj-1]
+            print ydata2.shape, orders3.shape, ym1, yp1, y0, orders3[jj], orders3[jj-1], hdenom 
             deriv=(ydata2[jj]-ydata2[jj-1])/(orders3[jj]-orders3[jj-1])
             secondderiv=(ydata2[jj+1]-2*ydata2[jj]+ydata2[jj-1])/(orders3[jj]-orders3[jj-1])**2
             best_i1=jj
