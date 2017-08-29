@@ -186,12 +186,12 @@ def main(argv):
              csvwriter=csv.writer(fio,delimiter=' ')
              csvwriter.writerow([t0, modenum,alpha,ccoeff,finf])
              fio.close()
-        plt.plot(orders[:len(orders)-2],finfarr,'o-')
-        ax=plt.gca()
-        ax.set_xlabel("Starting order of extrapolation")
-        ax.set_ylabel("Finf")
-        plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
-        plt.show()
+        #plt.plot(orders[:len(orders)-2],finfarr,'o-')
+        #ax=plt.gca()
+        #ax.set_xlabel("Starting order of extrapolation")
+        #ax.set_ylabel("Finf")
+        #plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
+        #plt.show()
         ii=0
         finfsum=0.
         sumcount=0

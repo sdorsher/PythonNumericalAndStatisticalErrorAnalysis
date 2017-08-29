@@ -78,6 +78,7 @@ def main(argv):
         end_i_sub=[]
         truish = ~np.isnan(finfarr)
         print truish
+        print finfarr
         for ii in range(len(finfarr)-1):
             if(ii==0 and truish[0]):
                 start_i_sub.append(0)
@@ -169,7 +170,7 @@ def main(argv):
         #plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
         #plt.show()
 
-        print best_i2
+        print best_i2-1
 
         
         ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i2-1]))
