@@ -20,7 +20,7 @@ from plotdataminusfinfpy import plotdataminusfinf
 
 
 def case5(best_start_sub, best_end_sub, fdata,forders):
-    best_i2=0
+    best_i1=0
     deriv=1
     secondderiv=-1
     jj=best_start_sub+1
@@ -28,10 +28,10 @@ def case5(best_start_sub, best_end_sub, fdata,forders):
         #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
         deriv=(fdata[jj+1]-fdata[jj-1])/(forders[jj+1]-forders[jj-1])*2
         secondderiv=(fdata[jj+1]-2*fdata[jj]+fdata[jj-1])*4/(forders[jj+1]-forders[jj-1])**2
-        best_i2=jj+1
+        best_i1=jj
         jj+=1
         print deriv, secondderiv
-        return best_i2
+        return best_i1
 def case4(best_start_sub, best_end_sub, fdata):
     
     
@@ -48,9 +48,9 @@ def case4(best_start_sub, best_end_sub, fdata):
     vetoeddata=datavetoedtoavg.filled([1.])
     print vetoeddata
     #select best index based on smallest deviation from average based on vetoed data
-    best_i2=(np.abs(vetoeddata-avg2)).argmin()
-    print avg2, best_i2
-    return best_i2
+    best_i1=(np.abs(vetoeddata-avg2)).argmin()+best_start_sub
+    print avg2, best_i1
+    return best_i1
 
 def ratiofunc(alpha, n1, n2, n3, yratio):
 
@@ -101,7 +101,7 @@ def main(argv):
         lbestarr=datatable[modenum,1:]
         finfarr=np.zeros(len(orders)-2)
         overall_best_chisq_dof=0
-        overall_best_i2=0
+        overall_best_i1=0
         finfs=np.zeros(len(orders)-2)
         for i1 in range(0,len(orders)-2):
             i2=i1+1
@@ -164,29 +164,29 @@ def main(argv):
 
         if (len_sub >= 5):
             print "case 5 or more"
-            best_i2=case5(best_start_sub, best_end_sub, fdata,forders)
-            print best_i2
+            best_i1=case5(best_start_sub, best_end_sub, fdata,forders)
+            print best_i1
             print len(finfarr)
-            if (best_i2-1<len(finfarr)/2):
-                best_i2=case4(best_start_sub, best_end_sub, fdata)
+            if (best_i1-1<len(finfarr)/2):
+                best_i1=case4(best_start_sub, best_end_sub, fdata)
         elif (len_sub==1):
             print "case 1"
-            best_i2=best_end_sub
+            best_i1=best_end_sub
         elif(len_sub==2):
             print "case 2"
-            best_i2=best_end_sub
+            best_i1=best_end_sub
         elif(len_sub==3):
             print "case 3"
-            case4(best_start_sub, best_end_sub,fdata)
-            #best_i2=(best_end_sub+best_start_sub)/2
+            best_i1=case4(best_start_sub, best_end_sub,fdata)
+            #best_i1=(best_end_sub+best_start_sub)/2
         elif(len_sub==4):
             print "case 4"
             #find average value and take value closest to average (this is case like plateau usually)
-            best_i2=case4(best_start_sub, best_end_sub, fdata)
+            best_i1=case4(best_start_sub, best_end_sub, fdata)
         else:
             print "no order passed for this mode, l=" + str(modenum)+ ", t=" +str(t0)
             exit()
-        print best_i2-1
+        print best_i1
         if(showplot1==1):
             plt.plot(orders[:len(orders)-2],finfarr,'o-')
             ax=plt.gca()
@@ -197,13 +197,13 @@ def main(argv):
 
 
         if(showplot2==1):
-            bestfinf=finfarr[best_i2-1]
-            plotdataminusfinf(orders,lbestarr,bestfinf,best_i2-1,best_i2,best_i2+1,modenum)
+            bestfinf=finfarr[best_i1]
+            plotdataminusfinf(orders,lbestarr,bestfinf,best_i1,best_i1+1,best_i1+2,modenum)
         
-        #ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i2-1]))
+        #ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i1-1]))
         #ydata2=ydata.flatten()
         #plt.semilogy(orders3,ydata2,'o-',label="Best choice Psir-Finf")
-        #plt.semilogy(orders3[best_i2-1:best_i2+2],ydata2[best_i2-1:best_i2+2],'ro',label="Points used in extrapolation")
+        #plt.semilogy(orders3[best_i1-1:best_i1+2],ydata2[best_i1-1:best_i1+2],'ro',label="Points used in extrapolation")
         #ax=plt.gca()
         #ax.set_xlabel("DG order")
         #ax.set_ylabel("|Psir-Finf|")
@@ -213,9 +213,9 @@ def main(argv):
 
 
         
-        print modenum, len_sub, best_i2-1, finfarr[best_i2-1]
+        print modenum, len_sub, best_i1, finfarr[best_i1]
         csvwriter3=csv.writer(fio3,delimiter=' ')
-        csvwriter3.writerow([modenum, len_sub, best_i2-1, finfarr[best_i2-1]])
+        csvwriter3.writerow([modenum, len_sub, best_i1, finfarr[best_i1]])
     fio3.close()
     
 if __name__=="__main__":
