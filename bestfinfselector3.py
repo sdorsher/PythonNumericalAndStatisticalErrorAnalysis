@@ -8,6 +8,8 @@ import pylab
 import sys, getopt, cmath, os
 from extrapolate7 import main as extrap7main
 import numpy.ma as ma
+from plotdataminusfinfpy import plotdataminusfinf
+
 #masked array
 
 #def truncfunc(Flclalpha, xdata, ydata):
@@ -15,6 +17,40 @@ import numpy.ma as ma
 #    cl=Flclalpha[1]
 #    alpha=Fclapha[2]
 #    return(ydata-cl*exp(-alpha*xdata))
+
+
+def case5(best_start_sub, best_end_sub, fdata,forders):
+    best_i2=0
+    deriv=1
+    secondderiv=-1
+    jj=best_start_sub+1
+    while ((deriv*secondderiv<0) and jj<best_end_sub):
+        #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
+        deriv=(fdata[jj+1]-fdata[jj-1])/(forders[jj+1]-forders[jj-1])*2
+        secondderiv=(fdata[jj+1]-2*fdata[jj]+fdata[jj-1])*4/(forders[jj+1]-forders[jj-1])**2
+        best_i2=jj+1
+        jj+=1
+        print deriv, secondderiv
+        return best_i2
+def case4(best_start_sub, best_end_sub, fdata):
+    
+    
+    print "case 4"
+    datatoaverage=fdata[best_start_sub:best_end_sub+1]
+    avg1 = np.average(datatoaverage)
+    std1=np.std(datatoaverage)
+    print avg1, std1
+    mymask = (np.abs(datatoaverage-avg1)>1*std1)
+    datavetoedtoavg=ma.masked_array(data=datatoaverage, mask=mymask)
+    avg2=datavetoedtoavg.mean()
+    #find nearest value see bookmarked page
+    #count on the fact that finf will not be order 1 and fill with 1's
+    vetoeddata=datavetoedtoavg.filled([1.])
+    print vetoeddata
+    #select best index based on smallest deviation from average based on vetoed data
+    best_i2=(np.abs(vetoeddata-avg2)).argmin()
+    print avg2, best_i2
+    return best_i2
 
 def ratiofunc(alpha, n1, n2, n3, yratio):
 
@@ -27,14 +63,18 @@ def main(argv):
     #def func(n, alpha, ccoeff, finf):
     #    return finf-ccoeff*np.exp(-alpha*n)
 
-    if(len(sys.argv)!=2):
-        print "Usage bestfinfselector.py t0"
+    if(len(sys.argv)!=4):
+        print "Usage bestfinfselector.py t0 showplot1 showplot2"
         print "\tt0 is the start time"
         print "Produces a table of mode vs order chosen and Finf selected"
+        print "showplot1: plots finf vs dg order"
+        print "showplot2: plots |Psir-finf| vs dg order"
         exit()
 
     print sys.argv[0], sys.argv[1]
     t0=int(sys.argv[1])
+    showplot1=int(sys.argv[2])
+    showplot2=int(sys.argv[3])
     print t0
     orders=np.array([16, 20, 24,28, 32,36,40,44]) #not 48,33
     start=0
@@ -112,10 +152,7 @@ def main(argv):
                 best_end_sub=end_i_sub[ii]
         
 
-        deriv=1
-        secondderiv=-1
-        best_i2=0
-        jj=best_start_sub+1
+
         
 
         fdata=finfarr.flatten()
@@ -127,15 +164,11 @@ def main(argv):
 
         if (len_sub >= 5):
             print "case 5 or more"
-        
-            while ((deriv*secondderiv<0) and jj<best_end_sub):
-                #if(~isnan(finfarr[ii]) and ~isnan(finfarr[ii-1]) and ~isnan(finfarr[ii+1])):
-                deriv=(fdata[jj+1]-fdata[jj-1])/(forders[jj+1]-forders[jj-1])*2
-                secondderiv=(fdata[jj+1]-2*fdata[jj]+fdata[jj-1])*4/(forders[jj+1]-forders[jj-1])**2
-                best_i2=jj+1
-                jj+=1
-                print deriv, secondderiv
-            
+            best_i2=case5(best_start_sub, best_end_sub, fdata,forders)
+            print best_i2
+            print len(finfarr)
+            if (best_i2-1<len(finfarr)/2):
+                best_i2=case4(best_start_sub, best_end_sub, fdata)
         elif (len_sub==1):
             print "case 1"
             best_i2=best_end_sub
@@ -144,45 +177,39 @@ def main(argv):
             best_i2=best_end_sub
         elif(len_sub==3):
             print "case 3"
-            best_i2=(best_end_sub+best_start_sub)/2
+            case4(best_start_sub, best_end_sub,fdata)
+            #best_i2=(best_end_sub+best_start_sub)/2
         elif(len_sub==4):
             print "case 4"
             #find average value and take value closest to average (this is case like plateau usually)
-            datatoaverage=fdata[best_start_sub:best_end_sub+1]
-            avg1 = np.average(datatoaverage)
-            std1=np.std(datatoaverage)
-            mymask = (np.abs(datatoaverage-avg1)>3*std1)
-            datavetoedtoavg=ma.masked_array(data=datatoaverage, mask=mymask)
-            avg2=datavetoedtoavg.mean()
-            #find nearest value see bookmarked page
-            #count on the fact that finf will not be order 1 and fill with 1's
-            vetoeddata=datavetoedtoavg.filled([1.])
-            #select best index based on smallest deviation from average based on vetoed data
-            best_i2=(np.abs(vetoeddata-avg2)).argmin()
-            #TODO
+            best_i2=case4(best_start_sub, best_end_sub, fdata)
         else:
             print "no order passed for this mode, l=" + str(modenum)+ ", t=" +str(t0)
             exit()
-        #plt.plot(orders[:len(orders)-2],finfarr,'o-')
-        #ax=plt.gca()
-        #ax.set_xlabel("Starting order of extrapolation")
-        #ax.set_ylabel("Finf")
-        #plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
-        #plt.show()
-
         print best_i2-1
+        if(showplot1==1):
+            plt.plot(orders[:len(orders)-2],finfarr,'o-')
+            ax=plt.gca()
+            ax.set_xlabel("Starting order of extrapolation")
+            ax.set_ylabel("Finf")
+            plt.title("Infinite order self force for l="+str(modenum)+", t="+str(t0))
+            plt.show()
 
+
+        if(showplot2==1):
+            bestfinf=finfarr[best_i2-1]
+            plotdataminusfinf(orders,lbestarr,bestfinf,best_i2-1,best_i2,best_i2+1,modenum)
         
-        ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i2-1]))
-        ydata2=ydata.flatten()
-        plt.semilogy(orders3,ydata2,'o-',label="Best choice Psir-Finf")
-        plt.semilogy(orders3[best_i2-1:best_i2+2],ydata2[best_i2-1:best_i2+2],'ro',label="Points used in extrapolation")
-        ax=plt.gca()
-        ax.set_xlabel("DG order")
-        ax.set_ylabel("|Psir-Finf|")
-        ax.legend(loc='lower left')
-        plt.title("Radial self force with Finf subtracted for l="+str(modenum)+", t="+str(t0))
-        plt.show()
+        #ydata=np.array(np.abs(datatable[modenum,1:]-finfarr[best_i2-1]))
+        #ydata2=ydata.flatten()
+        #plt.semilogy(orders3,ydata2,'o-',label="Best choice Psir-Finf")
+        #plt.semilogy(orders3[best_i2-1:best_i2+2],ydata2[best_i2-1:best_i2+2],'ro',label="Points used in extrapolation")
+        #ax=plt.gca()
+        #ax.set_xlabel("DG order")
+        #ax.set_ylabel("|Psir-Finf|")
+        #ax.legend(loc='lower left')
+        #plt.title("Radial self force with Finf subtracted for l="+str(modenum)+", t="+str(t0))
+        #plt.show()
 
 
         

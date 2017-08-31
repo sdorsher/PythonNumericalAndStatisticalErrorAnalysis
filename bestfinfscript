@@ -19,7 +19,7 @@ while [ $T0 -le $T0FINAL ]; do
     FILENAME1=$FILENAME1A$FILENAME1B$FILENAME1C
     echo $FILENAME1
     if [ ! -f $FILENAME1 ]; then
-	python bestfinfselector.py $T0
+	python bestfinfselector3.py $T0 0 0 
     fi
     python fitcoefftable.py $T0 $USEBESTFINF $USEREDUCEDRANGE $SHOWPLOT $USEAVG $TERMSCHOSEN $STARTORDER | tee -a $FILENAME2
     T0=$(($T0+$T0STEP))
