@@ -47,11 +47,12 @@ def sum_func4(lmin):
 
 def main(argv):
 
-    if (len(sys.argv)<7):
-        print "Usage fitcoefftable.py t0 useBestFinf useReducedRange showSurfacePlot useAvg termsChosen startOrder(opt)"
+    if (len(sys.argv)<8):
+        print "Usage fitcoefftable.py t0 useBestFinf useSingleIndex useReducedRange showSurfacePlot useAvg termsChosen startOrder(opt)"
         print "\tt0 is the initial time"
         print "\tuseBestFinf is 0 to use Finf based on a certain set of three \n\t\t extrapolation points starting with startOrder.\n\t\tFor useBestFinf=0 run extrapolate7.py first"
         print "\tuseBestFinf is 1 to use Finf selected based on the highest \n\t\t order for which Finf was defined.\n\t\tFor useBestFinf=1 run bestfinfselector.py first."
+        print "\tuseSingleIndex=1 chooses lmin=14, lmax=17"
         print "\tuseReducedRange=0 chooses lmin=14-19 lmax=24-30."
         print "\tuseReducedrange=1 chooses lmin=14-17, lmax=22-25, which avoids roundoff error near periastron"
         print "\tshowSurfacePlot=1 shows the surface plot, showSurfacePlot=0 hides it"
@@ -60,18 +61,20 @@ def main(argv):
         exit()
     t0=int(sys.argv[1])
     useBestFinf=(int(sys.argv[2])==1)
-    useReducedRange=(int(sys.argv[3])==1)
-    showPlot=(int(sys.argv[4])==1)
-    useAvg=(int(sys.argv[5])==1)
-    termsChosen=int(sys.argv[6])
+    useSingleIndex=(int(sys.arvg[3]==1)
+    useReducedRange=(int(sys.argv[4])==1)
+    showPlot=(int(sys.argv[5])==1)
+    useAvg=(int(sys.argv[6])==1)
+    termsChosen=int(sys.argv[7])
     if(len(sys.argv)==8):
-        startOrder=int(sys.argv[7])
+        startOrder=int(sys.argv[8])
     minplotnum=2
     #finfcolumn=4
     finfcolumn=3
     lcolumn=1
     if(useBestFinf):
-        finfcolumn=6 # 2 min 3 max 4 med 6 fit method finf
+        finfcolumn=3 #3 for mixed method based on finf trends and avgs
+        # 2 min 3 max 4 med 6 fit method finf
         #finfcolumn=2
         lcolumn=0
     else:
@@ -99,9 +102,12 @@ def main(argv):
 
     plotnosigma=True
     plotsigma=False
-    startindeces=[]
-    finalindices=[]
-    if(useReducedRange):
+    startindex=[]
+    finalindex=[]
+    if(useSingleIndex):
+        startindeces=np.array([14])
+        finalindices=np.array([25])
+    elif(useReducedRange):
         startindeces=np.array(range(14,18,1))
         finalindices=np.array(range(22,26,1))
     else:
