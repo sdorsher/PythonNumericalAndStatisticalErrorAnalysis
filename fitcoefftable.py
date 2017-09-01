@@ -61,7 +61,7 @@ def main(argv):
         exit()
     t0=int(sys.argv[1])
     useBestFinf=(int(sys.argv[2])==1)
-    useSingleIndex=(int(sys.arvg[3]==1)
+    useSingleIndex=(int(sys.argv[3])==1)
     useReducedRange=(int(sys.argv[4])==1)
     showPlot=(int(sys.argv[5])==1)
     useAvg=(int(sys.argv[6])==1)
@@ -274,45 +274,46 @@ def main(argv):
         midy=len(finalindices)/2-1
         selfForce=zvalschosen[midx,midy]
         selfForce2=zvalschosen2[midx,midy]
-    if 1 in fitindices:
-        if plotnosigma:
-            ax.plot_wireframe(startx2,finaly2,zvals1,rstride=1,cstride=1,color="red",label='1 term')
-        if plotsigma:
-            ax.plot_wireframe(startx2,finaly2,zvals1_2,rstride=1,cstride=1,color="black",label='weights')
-    if 2 in fitindices:
-        if plotnosigma:
-            ax.plot_wireframe(startx2,finaly2,zvals2,rstride=1,cstride=1,color="blue",label='2 term')
-        if plotsigma:
-            ax.plot_wireframe(startx2,finaly2,zvals2_2,rstride=1,cstride=1,color="orange",label='weights')
-    if 3 in fitindices:
-        if plotnosigma:
-            ax.plot_wireframe(startx2,finaly2,zvals3,rstride=1,cstride=1,color="green",label='3 term')
-        if plotsigma:
-            ax.plot_wireframe(startx2,finaly2,zvals3_2,rstride=1,cstride=1,color="purple",label='weights')
-            ax.legend(loc='lower left')
-    if 4 in fitindices:
-        if plotnosigma:
-            ax.plot_wireframe(startx2,finaly2,zvals4,rstride=1,cstride=1,color="orange",label='4 term')
-        if plotsigma:
-            ax.plot_wireframe(startx2,finaly2,zvals4_2,rstride=1,cstride=1,color="green",label='weights')
-            ax.legend(loc='lower left')
-    #ax=plt.gca()
+    if(showPlot):    
+        if 1 in fitindices:
+            if plotnosigma:
+                ax.plot_wireframe(startx2,finaly2,zvals1,rstride=1,cstride=1,color="red",label='1 term')
+            if plotsigma:
+                ax.plot_wireframe(startx2,finaly2,zvals1_2,rstride=1,cstride=1,color="black",label='weights')
+            if 2 in fitindices:
+                if plotnosigma:
+                    ax.plot_wireframe(startx2,finaly2,zvals2,rstride=1,cstride=1,color="blue",label='2 term')
+                if plotsigma:
+                    ax.plot_wireframe(startx2,finaly2,zvals2_2,rstride=1,cstride=1,color="orange",label='weights')
+            if 3 in fitindices:
+                if plotnosigma:
+                    ax.plot_wireframe(startx2,finaly2,zvals3,rstride=1,cstride=1,color="green",label='3 term')
+                if plotsigma:
+                    ax.plot_wireframe(startx2,finaly2,zvals3_2,rstride=1,cstride=1,color="purple",label='weights')
+                ax.legend(loc='lower left')
+            if 4 in fitindices:
+                if plotnosigma:
+                    ax.plot_wireframe(startx2,finaly2,zvals4,rstride=1,cstride=1,color="orange",label='4 term')
+                if plotsigma:
+                    ax.plot_wireframe(startx2,finaly2,zvals4_2,rstride=1,cstride=1,color="green",label='weights')
+                ax.legend(loc='lower left')
+        #ax=plt.gca()
 
-    #print sumtotalarr
-    ax.set_zlabel("")
-    ax.set_xlim(min(startindeces),max(startindeces))
-    ax.set_ylim(min(finalindices),max(finalindices))
-    #ax.set_zlim(min(min(zvals1),min(zvals2),min(zvals3)),max(max(zvals1),max(zvals2),max(zvals3)))
+        #print sumtotalarr
+        ax.set_zlabel("")
+        ax.set_xlim(min(startindeces),max(startindeces))
+        ax.set_ylim(min(finalindices),max(finalindices))
+        #ax.set_zlim(min(min(zvals1),min(zvals2),min(zvals3)),max(max(zvals1),max(zvals2),max(zvals3)))
 
-    formatter=ticker.ScalarFormatter(useMathText=True)
-    formatter.set_scientific(True)
-    ax.w_zaxis.set_major_formatter(formatter)
-    ax.ticklabel_format(axis="z",style="sci",scilimits=(0,0))
-    plt.xlabel("Start l mode")
-    plt.ylabel("Final l mode")
-    #plt.zlabel("Total radial self force")
-    plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
-    if(showPlot):
+        formatter=ticker.ScalarFormatter(useMathText=True)
+        formatter.set_scientific(True)
+        ax.w_zaxis.set_major_formatter(formatter)
+        ax.ticklabel_format(axis="z",style="sci",scilimits=(0,0))
+        plt.xlabel("Start l mode")
+        plt.ylabel("Final l mode")
+        #plt.zlabel("Total radial self force")
+        plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
+        
         plt.show()
     print t0, selfForce, selfForce2, unextrapolatedsum, unextrapolatedsumfullrange, stdSF1, stdSF2, stdUSF
     return t0, selfForce, selfForce2, unextrapolatedsum, unextrapolatedsumfullrange, stdSF1, stdSF2, stdUSF
