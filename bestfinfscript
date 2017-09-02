@@ -1,11 +1,15 @@
 #!/bin/bash
-USEAVG=1
-FILENAME2="selfForceOverTime.csv"
+USEAVG=0
+
 T0INIT=$1
 T0FINAL=$2
 T0STEP=$3
 T0=$T0INIT
-   
+
+
+FILENAME3A="genrawdata"
+FILENAME3C=".csv"
+
 TERMSCHOSEN=3
 USESINGLEINDEX=1
 USEREDUCEDRANGE=0
@@ -17,11 +21,24 @@ FILENAME1C=".csv"
 
 while [ $T0 -le $T0FINAL ]; do
     FILENAME1B=$T0
-    FILENAME1=$FILENAME1A$FILENAME1B$FILENAME1C
-    echo $FILENAME1
-    if [ ! -f $FILENAME1 ]; then
-	python bestfinfselector3.py $T0 0 0 
+    if [ $USEBESTFINF -ne 0 ]; then
+	FILENAME1=$FILENAME1A$FILENAME1B$FILENAME1C
+	echo $FILENAME1
+	if [ ! -f $FILENAME1 ]; then
+	    python bestfinfselector3.py $T0 0 0 
+	fi
+    else
+	FILENAME3=$FILENAME3A$FILENAME1B$FILENAME3C
+	echo $FILENAME3
+	if [ ! -f $FILENAME3 ]; then
+	    exit 1
+	fi
     fi
-    python fitcoefftable.py $T0 $USEBESTFINF $USESINGLEINDEX $USEREDUCEDRANGE $SHOWPLOT $USEAVG $TERMSCHOSEN $STARTORDER | tee -a $FILENAME2
+    if [ $USEBESTFINF -ne 0]; then
+	python fitcoefftable.py $T0 $USEBESTFINF $USESINGLEINDEX $USEREDUCEDRANGE $SHOWPLOT $USEAVG $TERMSCHOSEN $STARTORDER | tee -a "selfForceOverTime.csv"
+
+    else
+	python fitcoefftable.py $T0 $USEBESTFINF $USESINGLEINDEX $USEREDUCEDRANGE $SHOWPLOT $USEAVG $TERMSCHOSEN $STARTORDER | tee -a "selfForceOverTimeDGorders.csv"
+    fi
     T0=$(($T0+$T0STEP))
 done
