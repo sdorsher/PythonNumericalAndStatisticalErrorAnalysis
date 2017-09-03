@@ -10,10 +10,10 @@ T0=$T0INIT
 FILENAME3A="genrawdata"
 FILENAME3C=".csv"
 
-TERMSCHOSEN=3
+TERMSCHOSEN=4
 USESINGLEINDEX=1
 USEREDUCEDRANGE=0
-USEBESTFINF=1
+USEBESTFINF=0
 SHOWPLOT=0
 STARTORDER=0 #optional and undefined for USEBESTFINF=1
 FILENAME1A="bestinfoverinitorder"
@@ -34,7 +34,7 @@ while [ $T0 -le $T0FINAL ]; do
 	    exit 1
 	fi
     fi
-    if [ $USEBESTFINF -ne 0]; then
+    if [ $USEBESTFINF -ne 0 ]; then
 	python fitcoefftable.py $T0 $USEBESTFINF $USESINGLEINDEX $USEREDUCEDRANGE $SHOWPLOT $USEAVG $TERMSCHOSEN $STARTORDER | tee -a "selfForceOverTime.csv"
 
     else

@@ -132,7 +132,7 @@ def main(argv):
     startx=np.zeros(len(sumtotalarr[0,:]))
     finaly=np.zeros(len(sumtotalarr[0,:]))
     unextraparr=np.zeros([(dgcolumnend+1-dgcolumnstart),len(startindeces),len(finalindices)])
-
+    avgSFU=np.zeros([dgcolumnend+1-dgcolumnstart])
     finfi=0
     for finfcolumn in range(dgcolumnstart,dgcolumnend+1):
         starti=0
@@ -239,6 +239,7 @@ def main(argv):
                     #plt.ylabel('Re(dpsi/dr)')
                     #plt.xlabel('l mode')
                     #plt.title('Radial self force fit residuals, t=' + str(t0))
+                    #plt.show()
                     #', starting from l=' + str(startmode))
                     fiti+=1
                 modei+=1
@@ -271,15 +272,18 @@ def main(argv):
         stdSF1=0
         stdSF2=0
         stdUSF=0
+
         if(useSingleIndex):
             selfForce=sumtotalarr[0,0]
             selfForce2=sumtotalarr2[0,0]
+            avgSFU[finfi]=unextraparr[finfi,0,0]
             stdSF1=0.
             stdSF2=0.
             stdSFU=0.
         elif(useAvg):
             selfForce=np.average(sumtotalarr[termChosenIndex,:])
             selfForce2=np.average(sumtotalarr2[termChosenIndex,:])
+            avgSFU=np.average(unextraparr[finfi,:,:])
             stdSF1=np.std(sumtotalarr[termChosenIndex,:])
             stdSF2=np.std(sumtotalarr2[termChosenIndex,:])
             stdSFU=np.std(unextraparr[finfi,:,:])
@@ -288,6 +292,7 @@ def main(argv):
             zvalschosen2=np.reshape(sumtotalarr2[termChosenIndex,:],(len(startindeces),len(finalindices)))
             midx=len(startindeces)/2-1
             midy=len(finalindices)/2-1
+            avgSFU[finfi]=unextraparr[finfi,midx,midy]
             selfForce=zvalschosen[midx,midy]
             selfForce2=zvalschosen2[midx,midy]
         selfForceDGordersArr[finfi]=selfForce
@@ -337,12 +342,16 @@ def main(argv):
             plt.title("Total radial self force, using DG error extrapolation per l-mode, t="+str(t0))
         
             plt.show()
-    finfi+=1
+        finfi+=1
         
     if(useBestFinf):
         print t0, selfForce, selfForce2, unextrapolatedsum, unextrapolatedsumfullrange, stdSF1, stdSF2, stdUSF
     else:
-        print t0, unextrapolatedsumfullrange, unextrapolatedsum, selfForceDGordersArr, selfForceDGordersArr2
+        outstring1=np.append([t0], [unextrapolatedsumfullrange])
+        outstring2=np.append(outstring1,avgSFU)
+        outstring3=np.append(outstring2,selfForceDGordersArr)
+        outstring4=np.append(outstring3,selfForceDGordersArr2)
+        print str(outstring4)[1:-1]
     #return t0, selfForce, selfForce2, unextrapolatedsum, unextrapolatedsumfullrange, stdSF1, stdSF2, stdUSF
     return 0
 if __name__=="__main__":

@@ -43,13 +43,18 @@ def main(t0in,startorder,showplot,writedata,start,stop):
     columnoffset=5
     timecolumn=0
     nummodes = 6
-    datatable =np.loadtxt("/mnt/data/sdorsher/Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
+
+    basestring="/home/sdorsher/SpineData/sdorsher/"
+    #basestring="/mnt/data/sdorsher/"
+
+    datatable =np.loadtxt(basestring+"Fortranp9.9e0.1n40/psir_l.asc", skiprows=1)
 
 
     i1=i10
     i2=i20
     i3=i30
 
+    
     loadstring=""
     loadstring="genrawdata"+str(t0)+".csv"
     print loadstring
