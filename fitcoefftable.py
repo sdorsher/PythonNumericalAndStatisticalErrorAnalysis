@@ -139,18 +139,19 @@ def main(argv):
         for startindex in startindeces:
             modei=0
             for maxmodefit in finalindices:
-                llist=datatable[startindex:maxmodefit,lcolumn]
-                psir=datatable[startindex:maxmodefit,finfcolumn]
-            
+                llist=datatable[startindex:maxmodefit+1,lcolumn]
+                psir=datatable[startindex:maxmodefit+1,finfcolumn]
                 sigmaweights=np.zeros(len(llist))
                 for ii in range(len(llist)):
                     sigmaweights[ii]=llist[ii]**-2.
                 psirtosum=datatable[0:maxmodefit+1,finfcolumn]
                 unextrapolatedsum=np.sum(psirtosum)
                 psirtosumfullrange=datatable[:,finfcolumn]
+                psirtosumfullrange=psirtosumfullrange[~np.isnan(psirtosumfullrange)]
                 unextrapolatedsumfullrange=np.sum(psirtosumfullrange)
                 unextraparr[finfi,starti,modei]=unextrapolatedsum
                 fiti=0
+                
                 for fitindex in fitindices:
                 
                     fit_func=fit_func1

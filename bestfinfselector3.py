@@ -161,7 +161,7 @@ def main(argv):
         forders=orders2[1:len(orders)-1]
 
         print best_start_sub, best_end_sub, len_sub
-
+        nonepassed=False
         if (len_sub >= 5):
             print "case 5 or more"
             best_i1=case5(best_start_sub, best_end_sub, fdata,forders)
@@ -185,7 +185,8 @@ def main(argv):
             best_i1=case4(best_start_sub, best_end_sub, fdata)
         else:
             print "no order passed for this mode, l=" + str(modenum)+ ", t=" +str(t0)
-            exit()
+            best_i1=-1
+            nonepassed=True
         print best_i1
         if(showplot1==1):
             plt.plot(orders[:len(orders)-2],finfarr,'o-')
@@ -196,7 +197,8 @@ def main(argv):
             plt.show()
 
 
-        if(showplot2==1):
+        if((showplot2==1) and (not nonepassed)):
+           
             bestfinf=finfarr[best_i1]
             plotdataminusfinf(orders,lbestarr,bestfinf,best_i1,best_i1+1,best_i1+2,modenum)
         
@@ -212,10 +214,12 @@ def main(argv):
         #plt.show()
 
 
-        
-        print modenum, len_sub, best_i1, finfarr[best_i1]
+        finfout='NaN'
+        if(not nonepassed):
+            finfout=finfarr[best_i1]
+        print modenum, len_sub, best_i1, finfout
         csvwriter3=csv.writer(fio3,delimiter=' ')
-        csvwriter3.writerow([modenum, len_sub, best_i1, finfarr[best_i1]])
+        csvwriter3.writerow([modenum, len_sub, best_i1, finfout])
     fio3.close()
     
 if __name__=="__main__":
